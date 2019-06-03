@@ -1,0 +1,49 @@
+zie https://github.com/hyperledger/indy-node/blob/master/docs/source/setup-dev.md voor orginele.
+Deze is voor ubuntu 16. ik denk dat 18 ook werkt. Check de originele site als er problemen ontstaan
+
+
+0.1 installeer git
+0.2 installeer node
+0.3 installeer npm
+0.4 intalleer node-gyp
+
+1. instaleer python 3.5
+sudo add-apt-repository ppa:deadsnakes/ppa
+sudo apt-get update
+sudo apt-get install python3.5
+
+2.installeer libsodium
+2.1 open sources.list in terminal
+sudo nano /etc/apt/sources.list
+2.2 kopieer repo in de file
+deb http://us.archive.ubuntu.com/ubuntu xenial main universe 
+2.3 run de volgende commando's
+sudo apt-get update
+sudo apt-get install libsodium18
+
+3.installeer Indy-Crypto
+sudo apt-get update
+sudo apt-get install apt-transport-https ca-certificates
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 68DB5E88
+sudo add-apt-repository "deb https://repo.sovrin.org/deb xenial master"
+sudo apt-get update
+sudo apt-get install libindy-crypto
+
+4.installeer rock-db
+sudo apt-get update
+sudo apt-get install apt-transport-https ca-certificates
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 68DB5E88
+sudo add-apt-repository "deb https://repo.sovrin.org/deb xenial master"
+# End of repository configuration steps
+sudo apt-get update
+sudo apt-get install libbz2-dev \
+    zlib1g-dev \
+    liblz4-dev \
+    libsnappy-dev \
+    rocksdb=5.8.8
+
+5.installeer libindy
+sudo add-apt-repository "deb https://repo.sovrin.org/sdk/deb xenial stable"
+sudo apt-get update
+sudo apt-get install -y libindy
+

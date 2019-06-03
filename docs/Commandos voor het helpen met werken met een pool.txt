@@ -1,0 +1,17 @@
+//start pool
+docker build -f ci/indy-pool.dockerfile -t indy_pool .
+docker run -itd -p 9701-9708:9701-9708 indy_pool
+
+//stop pool
+docker stop indy_pool && docker rm indy_pool
+
+//vind de ledger
+docker exec -it indy_pool bash
+cd var/lib/indy/
+
+//exit de docker bash
+c-q c-c
+
+//wallets en pool config
+cd /home/osboxes/Desktop/.indy_client
+

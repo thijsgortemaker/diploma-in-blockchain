@@ -1,0 +1,17 @@
+{
+  "name": "diplomas_in_blockchain",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "start": "rm -rf  /home/osboxes/.indy_client/ && node src/main.js",
+    "ledger:start": "cd ../ && docker build -f pool/ci/indy-pool.dockerfile -t indy_pool . && docker run --name indy_pool -itd -p 9701-9708:9701-9708 indy_pool",
+    "ledger:stop": "docker stop indy_pool && docker rm indy_pool"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {},
+  "devDependencies": {
+    "indy-sdk": "^1.9.0-rc-75"
+  }
+}
