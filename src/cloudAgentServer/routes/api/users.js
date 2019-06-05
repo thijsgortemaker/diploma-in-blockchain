@@ -1,3 +1,5 @@
+const router = require('express').Router();
+
 router.post('/auth', function(req, res) {
 
     let username = req.body.username;
