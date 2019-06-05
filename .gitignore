@@ -13,3 +13,4 @@ jspm_packages/
 
 # test database
 data/
+\.idea/

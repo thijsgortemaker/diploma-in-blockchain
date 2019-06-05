@@ -6,8 +6,13 @@ const app = express();
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
+app.use(express.static('public'));
 
-app.use(require('./routes'));
+var users = require('./routes/api/users');
+var indexRouter = require('./routes/index');
+
+app.use('/',indexRouter);
+app.use('/users',users);
 
 app.listen(PORT, function () {
     console.log('Listening on port: ' + PORT);
