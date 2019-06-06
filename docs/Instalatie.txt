@@ -3,9 +3,12 @@ Deze is voor ubuntu 16. ik denk dat 18 ook werkt. Check de originele site als er
 
 
 0.1 installeer git
+sudo apt-get git
 0.2 installeer node
 0.3 installeer npm
+sudo apt-get node npm
 0.4 intalleer node-gyp
+npm install -g node-gyp
 
 1. instaleer python 3.5
 sudo add-apt-repository ppa:deadsnakes/ppa
@@ -24,7 +27,7 @@ sudo apt-get install libsodium18
 3.installeer Indy-Crypto
 sudo apt-get update
 sudo apt-get install apt-transport-https ca-certificates
-apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 68DB5E88
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 68DB5E88
 sudo add-apt-repository "deb https://repo.sovrin.org/deb xenial master"
 sudo apt-get update
 sudo apt-get install libindy-crypto
@@ -32,7 +35,7 @@ sudo apt-get install libindy-crypto
 4.installeer rock-db
 sudo apt-get update
 sudo apt-get install apt-transport-https ca-certificates
-apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 68DB5E88
+sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 68DB5E88
 sudo add-apt-repository "deb https://repo.sovrin.org/deb xenial master"
 # End of repository configuration steps
 sudo apt-get update
