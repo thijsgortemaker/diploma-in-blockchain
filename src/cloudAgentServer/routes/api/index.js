@@ -1,5 +1,8 @@
 const router = require('express').Router();
 
-router.use('/user', require('./users'))
+router.get("/", function(req, rsp){
+    console.log("Test is working");
+    rsp.end("Test is working. Connected with Cloud Agent server");
+})
 
 module.exports = router;
