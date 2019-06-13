@@ -1,0 +1,20 @@
+System.out.println("\n9. Build the SCHEMA request to add new schema to the ledger as a Steward\n");
+		String name = "gvt";
+		String version = "1.0";
+		String attributes = "[\"age\", \"sex\", \"height\", \"name\"]";
+		String schemaDataJSON = "{\"name\":\"" + name + "\",\"version\":\"" + version + "\",\"attrNames\":" + attributes + ", id=\"id\", ver=\"1.0\"}";
+		System.out.println("Schema: " + schemaDataJSON);
+		String schemaRequest = buildSchemaRequest(defaultStewardDid, schemaDataJSON).get();
+		System.out.println("Schema request:\n" + schemaRequest);
+
+		// 10
+		System.out.println("\n10. Sending the SCHEMA request to the ledger\n");
+		String schemaResponse = signAndSubmitRequest(pool, walletHandle, defaultStewardDid, schemaRequest).get();
+		System.out.println("Schema response:\n" + schemaResponse);
+
+		// 11
+		System.out.println("\n11. Creating and storing CLAIM DEFINITION using anoncreds as Trust Anchor, for the given Schema\n");
+		String schemaJSON = "{\"seqNo\": 1, \"dest\": \"" + defaultStewardDid + "\", \"data\": " + schemaDataJSON + "}";
+		System.out.println("Schema:\n" + schemaJSON);
+		String claimDef = issuerCreateAndStoreClaimDef(walletHandle, trustAnchorDID, schemaJSON, "CL", false).get();
+		System.out.println("Claim Definition:\n" + claimDef);

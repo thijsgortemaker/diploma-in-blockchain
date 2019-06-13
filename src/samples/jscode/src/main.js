@@ -184,13 +184,3 @@ async function connectMetPool(){
     //connect met de pool zodat je een hadle terug krijgt om er mee te praten
     return await indy.openPoolLedger(POOL_NAME, undefined);
 }
-
-let getAttrRequest = await indy.buildGetAttribRequest(LedgerHandler.dids.veriynimDid,
-    "VTzoAPHGUEsA7Rj5fkrkQm",
-    "port",
-    null,
-    null
-);
-
-reply = await indy.signAndSubmitRequest(LedgerHandler.poolHandle, LedgerHandler.walletHandle, LedgerHandler.dids.veriynimDid, getAttrRequest);
-console.log(reply);
