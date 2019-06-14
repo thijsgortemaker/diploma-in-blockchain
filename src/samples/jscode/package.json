@@ -7,7 +7,7 @@
     "start": "rm -rf  /home/osboxes/.indy_client/ && node src/main.js",
     "ledger:start": "cd ../ && docker build -f pool/ci/indy-pool.dockerfile -t indy_pool . && docker run --name indy_pool -itd -p 9701-9708:9701-9708 indy_pool",
     "ledger:stop": "docker stop indy_pool && docker rm indy_pool",
-    "debug": "nodemon --watch main.js"
+    "debug": "nodemon --watch ."
   },
   "author": "",
   "license": "ISC",
