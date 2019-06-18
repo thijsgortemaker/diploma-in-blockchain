@@ -4,7 +4,6 @@ const colors = require('./colors');
 
 const poolName = 'pool';
 let poolHandle;
-let walletHandle;
 const log = console.log;
 
 function logValue() {
@@ -33,38 +32,39 @@ exports.closePool = async function closePool() {
     log("pool is closed")
 };
 
-exports.createWallet = async function createWallet(walletConfig, walletCredentials) {
+exports.createWallet = async function createWallet(walletholder) {
     //create wallet
     try {
-        await indy.createWallet(walletConfig, walletCredentials)
+        await indy.createWallet(walletholder.walletConfig, walletholder.walletCredentials)
     } catch (e) {
-        await indy.deleteWallet(walletConfig, walletCredentials);
-        await indy.createWallet(walletConfig, walletCredentials);
+        await indy.deleteWallet(walletholder.walletConfig, walletholder.walletCredentials);
+        await indy.createWallet(walletholder.walletConfig, walletholder.walletCredentials);
     }
     log("wallet created")
 };
 
-exports.openWallet = async function openWallet(walletConfig, walletCredentials) {
-    const wallethandle = await indy.openWallet(walletConfig, walletCredentials);
+exports.openWallet = async function openWallet(walletholder) {
+    const wallethandle = await indy.openWallet(walletholder.walletConfig, walletholder.walletCredentials);
     log("wallet open");
     log(wallethandle);
-    walletHandle = wallethandle;
-    return walletHandle;
+    walletholder.walletHandle=wallethandle
 };
 
-exports.closeWallet = async function closeWallet() {
-    await indy.closeWallet(walletHandle);
+exports.closeWallet = async function closeWallet(walletholder) {
+    await indy.closeWallet(walletholder.walletHandle);
     log("wallet closed")
 };
 
-exports.deleteWallet = async function deleteWallet(walletConfig, walletCredentials) {
-    await indy.deleteWallet(walletConfig, walletCredentials);
+exports.deleteWallet = async function deleteWallet(walletholder) {
+    await indy.deleteWallet(walletholder.walletConfig, walletholder.walletCredentials);
     log("wallet deleteted");
 };
 
-exports.generateDid = async function generateDid(did) {
-    const [Did, Verkey] = await indy.createAndStoreMyDid(walletHandle, did)
-    return [Did, Verkey];
+exports.generateDid = async function generateDid(walletholder) {
+    const [Did, Verkey] = await indy.createAndStoreMyDid(walletholder.walletHandle, walletholder.seed);
+    walletholder.Did= Did;
+    walletholder.Verkey= Verkey;
+    log("did generated")
 };
 
 exports.buildNymRequest = async function buildNymRequest(submiterDid, targetDid, targetverkey, alias, role) {
@@ -73,8 +73,8 @@ exports.buildNymRequest = async function buildNymRequest(submiterDid, targetDid,
     return nymRequest;
 };
 
-exports.sendNymRequest = async function sendNymRequest(submitterdid, nymRequest) {
-    await indy.signAndSubmitRequest(poolHandle, walletHandle, submitterdid, nymRequest);
+exports.sendNymRequest = async function sendNymRequest(walletholder, nymRequest) {
+    await indy.signAndSubmitRequest(poolHandle, walletholder.walletHandle, walletholder.Did, nymRequest);
     log("req send");
 };
 
@@ -87,36 +87,44 @@ exports.buildAndSendGetNymRequest = async function buildAndSendGetNymRequest(sub
     return getNymResponse;
 };
 
-exports.buildAndSendSchema = async function buildAndSendSchema(stewardDid, name, version, atributes) {
+exports.buildAndSendSchema = async function buildAndSendSchema(walletholder, name, version, atributes) {
     let [schemaId, schema] = await indy.issuerCreateSchema(stewardDid, name, version, atributes);
     log('Schema data: ', schemaId);
     log('Schema: ', schema);
-    let schemaRequest = await indy.buildSchemaRequest(stewardDid, schema);
-    let shemaResponse = await indy.signAndSubmitRequest(poolHandle, walletHandle, stewardDid, schemaRequest)
+    let schemaRequest = await indy.buildSchemaRequest(walletholder.Did, schema);
+    let shemaResponse = await indy.signAndSubmitRequest(poolHandle, walletholder.walletHandle, walletholder.Did, schemaRequest)
     return [schemaId,shemaResponse];
 
 };
 
-exports.getschema = async function getschema(submiterID, schemaID) {
+exports.getschema = async function getschema(walletholder, schemaID) {
     let options ={noCache: false,noUpdate: false, noStore:false,minFresh:-1}
-    let resp = await indy.getSchema(poolHandle,walletHandle,submiterID,schemaID,options)
+    let resp = await indy.getSchema(poolHandle,walletholder.walletHandle,walletholder.Did,schemaID,options)
     log(resp);
+};
+
+exports.createCred = async function createCred(walletholder,schema,) {
+    cred_def_tag = 'TAG1'
+    cred_def_type = 'CL'
+    cred_def_config = {"support_revocation": False}
+    [credDefId, credDef] = await indy.issuerCreateAndStoreCredentialDef(walletholder.walletHandle,walletholder.Did,schema,cred_def_tag,cred_def_type,cred_def_config)
+    log("#test")
+    return [credDefId, credDef];
 };
 
 exports.test = async function test() {
     log("#test")
-    let options ={noCache: false,noUpdate: false, noStore:false,minFresh:-1}
-    // {
-    //     noCache: (bool, optional, false by default) Skip usage of cache,
-    //     noUpdate: (bool, optional, false by default) Use only cached data, do not try to update.
-    //     noStore: (bool, optional, false by default) Skip storing fresh data if updated,
-    //     minFresh: (int, optional, -1 by default) Return cached data if not older than this many seconds. -1 means do not check age.
-    // }
-
-    let resp = await indy.getSchema(poolHandle,walletHandle,"Th7MpTaRZVRYnPiabds81Y","Th7MpTaRZVRYnPiabds81Y:2:person:1.1",options)
-    log(resp);
-    return resp;
 };
+
+exports.test = async function test() {
+    log("#test")
+};
+
+exports.test = async function test() {
+    log("#test")
+};
+
+
 
 exports.t = async function t() {
     log("#debuging")
