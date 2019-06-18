@@ -29,18 +29,43 @@ function gotoPage(event, props){
   mount.unmount();
 
   if(page == 0){
-    mount = glasgow.mount(document.body, logIn);
+    mountScreen = glasgow.mount(document.body, logIn);
   }else if(page == 1){
-    mount = glasgow.mount(document.body, mainPage);
+    mountScreen = glasgow.mount(document.body, connectieRequestenScherm);
+  }else if(page == 2){
+    mountScreen = glasgow.mount(document.body, vakAanmakenScherm);
+  }else if(page == 3){
+    mountScreen = glasgow.mount(document.body, geefCompetentieUitScherm);
   }
 }
 
-function mainPage(){
+function navigationBar(){
+  return <div>
+    <button name="name" value="1" type="submit" onclick={gotoPage}>Connectie requesten</button>
+    <button name="name" value="2" type="submit" onclick={gotoPage}>Vak aanmaken</button>
+    <button name="name" value="3" type="submit" onclick={gotoPage}>Geef competentie uit</button>
+    <button name="name" value="0" type="submit" onclick={gotoPage}>Log uit</button>
+  </div>
+}
+
+function connectieRequestenScherm(){
   return <main>
     <h1>Saxion</h1>
-    <button name="name" value="1" type="submit" onclick={gotoPage}>Voeg vak toe</button><br/>
-    <button name="name" value="1" type="submit" onclick={gotoPage}>Ga naar connecties</button><br/>
-    <button name="name" value="0" type="submit" onclick={gotoPage}>Log uit</button>
+    {navigationBar()}
+  </main>
+}
+
+function vakAanmakenScherm(){
+  return <main>
+    <h1>Saxion</h1>
+    {navigationBar()}
+  </main>
+}
+
+function geefCompetentieUitScherm(){
+  return <main>
+    <h1>Saxion</h1>
+    {navigationBar()}
   </main>
 }
 
