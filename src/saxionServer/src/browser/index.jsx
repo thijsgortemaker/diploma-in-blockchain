@@ -20,6 +20,20 @@ function doLoginRequest(event, props){
   });
 }
 
+function doeVakAanmaakRequest(event, props){
+  HTTPrequest('POST', '/api/vak', {naam: props.$naamvak, omschrijving: props.$omschrijving, ecs: props.$ecs}, function(body){
+    if(body.err){
+      let errorElement = document.getElementById("vakAanmaakError");
+      errorElement.hidden = false;
+      errorElement.firstChild.innerHTML = body.err;
+    }else{
+      gotoPage(null, {$pageNumber: 2});
+      showSnackBarMessage("cool brah");
+    }
+  });
+}
+
+
 function gotoPage(event, props){
   let page;
 
@@ -66,7 +80,13 @@ function connectieRequestenScherm(){
 function vakAanmakenScherm(){
   return <main>
     <h1>Saxion</h1>
-    {navigationBar()}
+    {navigationBar()}<br/>
+    <div id ="vakAanmaakError" hidden><span>Vervang dit met een error</span><br/></div>
+    <span>Naam vak </span><input type="text" binding="$naamvak"/><br/>
+    <span>Omschrijving vak </span><input type="text" binding="$omschrijving"/><br/>
+    <span>ecs </span><input type="text" binding="$ecs"/><br/>
+    <input type="submit" value="Maak vak aan" onclick = {doeVakAanmaakRequest}/>
+    <div id="snackbar">Some text some message..</div>
   </main>
 }
 
@@ -114,4 +134,11 @@ function HTTPrequest(method, url, body, cb){
   }
   
   xhr.send(JSON.stringify(body));
+}
+
+function showSnackBarMessage(message) {
+  var x = document.getElementById("snackbar");
+  x.innerHTML = message;
+  x.className = "show";
+  setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
 }

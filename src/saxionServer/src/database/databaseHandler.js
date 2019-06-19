@@ -30,3 +30,10 @@ DataBaseHandler.getUser = function(userName, callBack, req, res){
     callBack(results, fields, req , res);
   }); 
 }
+
+DataBaseHandler.voegVakToe = function(naam, omschrijving, ecs, callBack, req, res){
+  connection.query(`INSERT INTO vak (vaknaam, vakomschrijving, ecs) VALUES (?, ?, ?)`, [naam, omschrijving, ecs] , function (error, results, fields) {    
+    console.log(error);
+    callBack(req, res, error);
+  }); 
+}
