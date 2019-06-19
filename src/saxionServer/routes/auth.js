@@ -1,5 +1,4 @@
-let jwt = require('express-jwt');
-let secret = 'thisNeedsToChange';
+let secret = 'YMIePg4y6xE0MGjQV8KxgzpyUaXd3jLP4YsW8LiriAAnTl4G12iLlkVO0wAH';
 
 function getToken(req) {
     if(req.headers.authorization && req.headers.authorization.split(' ')[0] === 'Token') {
@@ -10,11 +9,7 @@ function getToken(req) {
 
 // This function might need to change in time too.
 var auth = {
-    required: jwt({
-      secret: secret,
-      userProperty: 'payload',
-      getToken: getToken
-    })
-  };
+      secret: secret
+    }
   
 module.exports = auth;

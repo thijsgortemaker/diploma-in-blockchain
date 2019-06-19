@@ -4,14 +4,17 @@
 import glasgow from 'glasgow';
 
 //main programma 
-glasgow.setDebug(1);
 let mount = glasgow.mount(document.body, logIn);
+let token;
 
 function doLoginRequest(event, props){
   HTTPrequest('POST', '/api/user/auth', {username: props.$username, password: props.$password}, function(body){
     if(body.err){
-      console.log(body.err)
+      let errorElement = document.getElementById("inlogSchermError");
+      errorElement.hidden = false;
+      errorElement.firstChild.innerHTML = body.err;
     }else{
+      token = body.token;
       gotoPage(null, {$pageNumber: 1});
     }
   });
@@ -29,14 +32,19 @@ function gotoPage(event, props){
   mount.unmount();
 
   if(page == 0){
-    mountScreen = glasgow.mount(document.body, logIn);
+    logOut();
   }else if(page == 1){
-    mountScreen = glasgow.mount(document.body, connectieRequestenScherm);
+    mount = glasgow.mount(document.body, connectieRequestenScherm);
   }else if(page == 2){
-    mountScreen = glasgow.mount(document.body, vakAanmakenScherm);
+    mount = glasgow.mount(document.body, vakAanmakenScherm);
   }else if(page == 3){
-    mountScreen = glasgow.mount(document.body, geefCompetentieUitScherm);
+    mount = glasgow.mount(document.body, geefCompetentieUitScherm);
   }
+}
+
+function logOut(){
+  token = undefined;
+  mount = glasgow.mount(document.body, logIn);
 }
 
 function navigationBar(){
@@ -50,7 +58,7 @@ function navigationBar(){
 
 function connectieRequestenScherm(){
   return <main>
-    <h1>Saxion</h1>
+    <h1 >Saxion</h1>
     {navigationBar()}
   </main>
 }
@@ -72,6 +80,7 @@ function geefCompetentieUitScherm(){
 function logIn() {      
   return <main>
     <h1>Saxion</h1>
+    <div id ="inlogSchermError" hidden><span>Vervang dit met een error</span><br/></div>
     <span>Gebruikersnaam: </span><input type="text" binding="$username"/><br/>
     <span>Wachtwoord: </span><input type="password" binding="$password"/><br/>
     <input type="submit" value="Log in" onclick = {doLoginRequest}/>
@@ -85,22 +94,20 @@ function HTTPrequest(method, url, body, cb){
   
   xhr.onreadystatechange = function(){
     if(xhr.readyState === XMLHttpRequest.DONE){
-      if(xhr.status === 200){
+      if(xhr.status < 500){
         //wanneer succesvol roep de callback aan
         cb(JSON.parse(xhr.responseText));
       }else if(xhr.status >= 500){
-        //als er iets mis is met de server maak de call nog eens.
-        //hier moet eigenlijk nog wat seconde tussen zitten.
-        //HTTPrequest(method, url, body, cb)
+        console.log(body);
       }
     }
   };
   
   xhr.open(method, url, true);
   
-  // if(token){
-  //   xhr.setRequestHeader("Authorization", token);
-  // }
+  if(token){
+    xhr.setRequestHeader("Authorization", token);
+  }
   
   if(body != null){
     xhr.setRequestHeader("Content-Type", "application/json");
