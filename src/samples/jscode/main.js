@@ -1,9 +1,10 @@
 console.log("server on");
 
-const indyMain = require("./indyMain");
+const indyUtils= require("./indyUtils");
 const colors = require('./colors');
-const {walletholder} =require('./walletholder');
+const {walletholder} = require('./walletholder');
 const log = console.log;
+
 
 function logValue() {
     log(colors.CYAN, ...arguments, colors.NONE)
@@ -15,58 +16,62 @@ async function main() {
     //order is key pleas use await to make sure the pool is open when in use
 
     //open pool
-    await indyMain.openpool();
+
+    await indyUtils.openpool();
 
     // create wallet command
-    let steward= new walletholder("1","secret");
 
-    await indyMain.createWallet(steward);
-    await indyMain.openWallet(steward);
+    walletConfig = {"id": "1"};
+    walletCredentials = {"key": "secret"}
+    walletConfig2 = {"id": "2"};
+    walletCredentials2 = {"key": "secret"}
+    let steward = new walletholder();
+    await indyUtils.createWallet(walletConfig, walletCredentials);
+    await indyUtils.openWallet(steward, walletConfig, walletCredentials);
 
     //create steward]
-    const did = {'seed': '000000000000000000000000Steward1'};
-    steward.seed= did;
+    const seed = {'seed': '000000000000000000000000Steward1'};
+    var temp = await indyUtils.getDIDswithMeta(steward)
+    log(temp);
 
-    await indyMain.generateDid(steward);
-    logValue('Steward DID: ', steward.Did);
-    logValue('Steward Verkey: ', steward.Verkey);
 
+    await indyUtils.didfromSeed(steward, seed);
+   // logValue('Steward DID: ', steward.Did);
+   // logValue('Steward Verkey: ', steward.Verkey);
+
+    [Did1, Verkey1] = await indyUtils.generateDid(steward);
+    steward.pririvateDid = Did1;
+    steward.pririverkey = Verkey1;
+//UsCeuNW53NyNccoaBd6Gej
     //create anchor
-    const trustAnchor =  new walletholder("2","secret");
-    await indyMain.createWallet(trustAnchor);
-    await indyMain.openWallet(trustAnchor);
+    let trustAnchor = new walletholder();
+    await indyUtils.createWallet(walletConfig2, walletCredentials2);
+    await indyUtils.openWallet(trustAnchor, walletConfig2, walletCredentials2);
+    // var temp2= await indyUtils.getDIDswithMeta(trustAnchor)
+    // log(temp2)
+    // var [Did, Verkey] = await indyUtils.generateDid(trustAnchor);
+    // trustAnchor.Did = Did;
+    // trustAnchor.Verkey = Verkey;
+    // logValue('Trust anchor DID: ', trustAnchor.Did);
+    // logValue('Trust anchor Verkey: ', trustAnchor.Verkey);
+
+    //[from_to_did, from_to_key, to_from_did, to_from_key] = await indyUtils.setupconection(steward, trustAnchor)
 
 
-    await indyMain.generateDid(trustAnchor);
-    logValue('Trust anchor DID: ', trustAnchor.Did);
-    logValue('Trust anchor Verkey: ', trustAnchor.Verkey);
-    //build req
-    const nymRequest = await indyMain.buildNymRequest(steward.Did, trustAnchor.Did, trustAnchor.Verkey, "TRUST_ANCHOR", "TRUST_ANCHOR");
-    //send req
-    await indyMain.sendNymRequest(steward, nymRequest);
-    //
-    // //generate client
-    // const [clientDid, clientVerkey] = await indyMain.generateDid({});
-    // logValue('Client DID: ', clientDid);
-    // logValue('Client Verkey: ', clientVerkey);
-    //
-    connection_request = {
-        'did': trustAnchor.Did,
-        'nonce': 123456789
-    }
 
+    // log("from did " + from_to_did);
+    // log("from to key " + from_to_key);
+    await indyUtils.setDidMeta(steward,"Th7MpTaRZVRYnPiabds81Y","myDID")
+    // await indyUtils.storeDIDwithMeta(steward,to_from_did,to_from_key, "steward")
+    // log("to from did " + to_from_did);
+    // log("to from key " + to_from_key);
 
-    //   old
-    //   const getNYMreq = await indyMain.buildGetNymRequest(clientDid, trustAnchorDid);
-    //   const getNymResponse = await indyMain.sendGetNymRequest(getNYMreq);
-    //  new
-    const getNymResponse = await indyMain.buildAndSendGetNymRequest(steward.Did, trustAnchor.Did);
-    logValue(getNymResponse)
-    logValue('Written by Steward: ', trustAnchor.Verkey)
-    const verkeyFromLedger = JSON.parse(getNymResponse['result']['data'])['verkey']
-    logValue('Queried from ledger: ', verkeyFromLedger)
-    logValue('Matching: ', verkeyFromLedger == trustAnchor.Verkey)
-
+    var temp = await indyUtils.getDIDswithMeta(steward)
+    log(steward)
+    log(temp);
+    log("trustanchor")
+    var temp2= await indyUtils.getDIDswithMeta(trustAnchor)
+    log(temp2)
     //version has to be newer and a . between numbers not a ,
     //var version = "1.1";
     // var atributes = ['age', 'sex', 'height', 'name'];
@@ -78,11 +83,11 @@ async function main() {
     //log(schemaresp);
     //indyMain.test(stewardDid,"test","1.0",atributes);
     //shut down
-    await indyMain.closeWallet(steward);
-    await indyMain.closeWallet(trustAnchor);
-    await indyMain.deleteWallet(steward);
-    await indyMain.deleteWallet(trustAnchor);
-    await indyMain.closePool();
+    await indyUtils.closeWallet(trustAnchor);
+    await indyUtils.closeWallet(steward);
+ //   await indyUtils.deleteWallet(walletConfig, walletCredentials);
+ //   await indyUtils.deleteWallet(walletConfig2, walletCredentials2);
+    await indyUtils.closePool();
 }
 
 try {
