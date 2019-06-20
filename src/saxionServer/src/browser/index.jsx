@@ -43,6 +43,23 @@ function gaNaarConnectieRequestenScherm(){
     );
 }
 
+function gaNaarGeefCompetentieUitScherm(){
+  HTTPrequest('GET', '/api/vak', {}, function(body1){
+    if(body1.err){
+    }else
+      HTTPrequest('GET', '/api/student', {}, function(body2){
+        if(body2.err){
+        }else{
+
+          console.log(body1);
+          console.log(body2);
+          mount = glasgow.mount(document.body, geefCompetentieUitScherm, {studenten: body2.results, vakken: body1.results});
+        }
+      });
+    }
+  );
+}
+
 
 function gotoPage(event, props){
   let page;
@@ -62,7 +79,7 @@ function gotoPage(event, props){
   }else if(page == 2){
     mount = glasgow.mount(document.body, vakAanmakenScherm);
   }else if(page == 3){
-    mount = glasgow.mount(document.body, geefCompetentieUitScherm);
+    gaNaarGeefCompetentieUitScherm();
   }
 }
 
@@ -76,7 +93,7 @@ function navigationBar(){
     <button name="name" value="1" type="submit" onclick={gotoPage}>Connectie requesten</button>
     <button name="name" value="2" type="submit" onclick={gotoPage}>Vak aanmaken</button>
     <button name="name" value="3" type="submit" onclick={gotoPage}>Geef competentie uit</button>
-    <button name="name" value="0" type="submit" onclick={gotoPage}>Log uit</button><br/>
+    <button name="name" value="0" type="submit" onclick={gotoPage}>Log uit</button><br/><br/>
   </div>
 }
 
@@ -99,17 +116,16 @@ function Request(props){
 }
 
 function accepteerConnectionRequest(event, props){
-  console.log(props);
 
-  HTTPrequest('POST', '/api/accepteerConnectionRequest', {id: props.idconnectierequest}, function(body){
+  HTTPrequest('POST', '/api/accepteerConnectionRequest', {id: props.result.idconnectierequest}, function(body){
     if(body.err){
     }else{
+      gotoPage(null,  {$pageNumber: 1});
       showSnackBarMessage("connectie met " + props.naam + "geaccepteert");
     }
   });
 
 }
-
 
 function vakAanmakenScherm(){
   return <main>
@@ -120,15 +136,43 @@ function vakAanmakenScherm(){
     <span>Omschrijving vak </span><input type="text" binding="$omschrijving"/><br/>
     <span>ecs </span><input type="text" binding="$ecs"/><br/>
     <input type="submit" value="Maak vak aan" onclick = {doeVakAanmaakRequest}/>
-    <div id="snackbar">Some text some message..</div>
   </main>
 }
 
-function geefCompetentieUitScherm(){
+function geefCompetentieUitScherm(props){
+  let studenten = props.studenten;
+  let vakken = props.vakken;
+  
   return <main>
     <h1>Saxion</h1>
     {navigationBar()}
+    <div id ="competentieSchermError" hidden><span>Vervang dit met een error</span><br/></div>
+    <span>student:</span>
+    <select binding="$student">
+    <option>{studenten[0].naam}</option>
+      {studenten.map(student =>  <option value= {student.idStudent}>{student.naamstudent}</option>)}
+    </select><br/>
+    <span>vak: </span>
+    <select binding="$vak">
+      {vakken.map(vak =>  <option value = {vak.idvak}>{vak.vaknaam}</option>)}
+    </select><br/>
+
+    <span>cijfer</span><input type="number" binding="$cijfer"/><br/>
+    <input type="submit" value="Maak vak aan" onclick = {geefCompetentieUit}/><br/>
   </main>
+}
+
+function geefCompetentieUit(event, props){
+  HTTPrequest('POST', '/api/competentie', {student: props.$student, vak : props.$vak, cijfer : props.$cijfer}, function(body){
+    if(body.err){
+      let errorElement = document.getElementById("competentieSchermError");
+      errorElement.hidden = false;
+      errorElement.firstChild.innerHTML = "Competentie al uitgegeven";
+    }else{
+      gotoPage(null,  {$pageNumber: 3});
+      showSnackBarMessage("competentie uitgegeven");
+    }
+  });
 }
 
 function logIn() {      

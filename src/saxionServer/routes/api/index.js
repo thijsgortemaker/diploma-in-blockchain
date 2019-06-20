@@ -59,19 +59,38 @@ router.get('/vak', function(req, res) {
     databaseHandler.getVakken(vakkenGetCallBack, req, res);
 })
 
+router.get('/student', function(req, res) {
+    databaseHandler.getStudenten(studentGetCallBack, req, res);
+})
+
 router.get('/connectieRequest', function(req, res) {
     databaseHandler.getConnectieRequest(connectieRequestGetCallBack, req , res);
 })
 
 router.post('/accepteerConnectionRequest', function(req, res) {
-    if(body.id){
-        databaseHandler.acceptConnectionRequest(connectieRequestGetCallBack, req , res);
+    if(req.body.id){
+        databaseHandler.acceptConnectionRequest(req.body.id, connectieRequestAccepteerCallBack, req , res);
+    }else{
+        res.status(404).end(JSON.stringify({err : "you need to give an id"}));
+    }
+})
+
+router.post('/competentie', function(req, res) {
+    if(req.body.student && req.body.vak && req.body.cijfer){
+        databaseHandler.voegCompetentieToe(req.body.student, req.body.vak, req.body.cijfer, voegCompetentieToeCallBack, req , res);
     }else{
         res.status(404).end(JSON.stringify({err : "you need to give an id"}));
     }
     
 })
 
+async function voegCompetentieToeCallBack(req ,res, err){
+    if(err){
+        res.status(404).end(JSON.stringify({err : "something went wrong but what"}));
+    }else{
+        res.status(200).end(JSON.stringify({rsp : "nieuw competentie aangemaakt"}));
+    }
+}
 
 async function vakkenPostCallBack(req ,res, err){
     if(err){
@@ -97,11 +116,28 @@ async function vakkenGetCallBack(results, err, req , res){
     }
 }
 
+async function studentGetCallBack(results, err, req , res){
+    if(err){
+        res.status(405).end(JSON.stringify({err : "error"}));
+    }else{
+        res.status(200).end(JSON.stringify({results: results}));
+    }
+}
+
+
 async function connectieRequestGetCallBack(results, err, req , res){
     if(err){
         res.status(405).end(JSON.stringify({err : "error"}));
     }else{
         res.status(200).end(JSON.stringify({results: results}));
+    }
+}
+
+async function connectieRequestAccepteerCallBack(results, err, req , res){
+    if(err){
+        res.status(405).end(JSON.stringify({err : "error"}));
+    }else{
+        res.status(200).end(JSON.stringify({rsp : "nieuw connectie reuquest geaccepteert"}));
     }
 }
 
