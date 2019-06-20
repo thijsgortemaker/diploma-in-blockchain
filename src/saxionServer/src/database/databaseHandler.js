@@ -37,3 +37,22 @@ DataBaseHandler.voegVakToe = function(naam, omschrijving, ecs, callBack, req, re
     callBack(req, res, error);
   }); 
 }
+
+DataBaseHandler.voegConnectieRequestToe = function(naam, studentnummer, did, verinym,callBack, req, res){
+  connection.query(`INSERT INTO connectierequest (naam, studentnummer, did, verinym) VALUES (?, ?, ?, ?)`, [naam, studentnummer, did, verinym] , function (error, results, fields) {    
+    console.log(error);
+    callBack(req, res, error);
+  }); 
+}
+
+DataBaseHandler.getConnectieRequest = function(callBack, req, res){
+  connection.query(`SELECT * FROM connectierequest`, function (error, results, fields) {    
+    callBack(results, error, req, res);
+  }); 
+}
+
+DataBaseHandler.getVakken = function(callBack, req, res){
+  connection.query(`SELECT * FROM vak`, function (error, results, fields) {    
+    callBack(results, error, req, res);
+  }); 
+}

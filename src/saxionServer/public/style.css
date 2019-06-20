@@ -17,6 +17,10 @@
     bottom: 30px;
     font-size: 17px;
   }
+
+  .inkomendRequest{
+    border: 5px solid black;
+  }
   
   #snackbar.show {
     visibility: visible;

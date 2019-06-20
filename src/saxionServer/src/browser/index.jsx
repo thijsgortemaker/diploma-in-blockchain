@@ -28,9 +28,19 @@ function doeVakAanmaakRequest(event, props){
       errorElement.firstChild.innerHTML = body.err;
     }else{
       gotoPage(null, {$pageNumber: 2});
-      showSnackBarMessage("cool brah");
+      showSnackBarMessage("vak aangemaakt");
     }
   });
+}
+
+function gaNaarConnectieRequestenScherm(){
+    HTTPrequest('GET', '/api/connectieRequest', {}, function(body){
+      if(body.err){
+
+      }else
+        mount = glasgow.mount(document.body, connectieRequestenScherm, body);
+      }
+    );
 }
 
 
@@ -48,7 +58,7 @@ function gotoPage(event, props){
   if(page == 0){
     logOut();
   }else if(page == 1){
-    mount = glasgow.mount(document.body, connectieRequestenScherm);
+    gaNaarConnectieRequestenScherm();
   }else if(page == 2){
     mount = glasgow.mount(document.body, vakAanmakenScherm);
   }else if(page == 3){
@@ -66,21 +76,45 @@ function navigationBar(){
     <button name="name" value="1" type="submit" onclick={gotoPage}>Connectie requesten</button>
     <button name="name" value="2" type="submit" onclick={gotoPage}>Vak aanmaken</button>
     <button name="name" value="3" type="submit" onclick={gotoPage}>Geef competentie uit</button>
-    <button name="name" value="0" type="submit" onclick={gotoPage}>Log uit</button>
+    <button name="name" value="0" type="submit" onclick={gotoPage}>Log uit</button><br/>
   </div>
 }
 
-function connectieRequestenScherm(){
+function connectieRequestenScherm(props){
   return <main>
     <h1 >Saxion</h1>
     {navigationBar()}
+    {props.results.map(result => <Request result = {result} />)}
   </main>
 }
+
+function Request(props){
+  return <section class = "inkomendRequest">
+    <p>naam: {props.result.naam}</p>
+    <p>studentnummer: {props.result.studentnummer}</p>
+    <p>did: {props.result.did}</p>
+    <p>verinym: {props.result.verinym}</p>
+    <input type="submit" value="accepteer" onclick={accepteerConnectionRequest}/> <input type="submit" value="niet accepteer"/>
+  </section>
+}
+
+function accepteerConnectionRequest(event, props){
+  console.log(props);
+
+  HTTPrequest('POST', '/api/accepteerConnectionRequest', {id: props.idconnectierequest}, function(body){
+    if(body.err){
+    }else{
+      showSnackBarMessage("connectie met " + props.naam + "geaccepteert");
+    }
+  });
+
+}
+
 
 function vakAanmakenScherm(){
   return <main>
     <h1>Saxion</h1>
-    {navigationBar()}<br/>
+    {navigationBar()}
     <div id ="vakAanmaakError" hidden><span>Vervang dit met een error</span><br/></div>
     <span>Naam vak </span><input type="text" binding="$naamvak"/><br/>
     <span>Omschrijving vak </span><input type="text" binding="$omschrijving"/><br/>
