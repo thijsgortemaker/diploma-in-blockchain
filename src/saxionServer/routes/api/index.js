@@ -20,6 +20,16 @@ router.post('/connectieRequest', function(req, res) {
     }
 })
 
+router.post('/competentieRequest', function(req, res) {
+    let body = req.body;
+    
+    if(body.competentieRequest, body.competentieOfferNR){
+        databaseHandler.haalCompetentieOp(body.competentieOfferNR, competentieRequestOfferCallback, req, res);
+    }else{
+        res.status(400).end(JSON.stringify({err : "bad request"}));
+    }
+})
+
 //check hier of de gebruiker een token heeft voor de calls naar de api
 router.use(function(req,rsp,next){
     let userToken = req.headers.authorization;
@@ -76,18 +86,36 @@ router.post('/accepteerConnectionRequest', function(req, res) {
 
 router.post('/competentie', function(req, res) {
     if(req.body.student && req.body.vak && req.body.cijfer){
-        databaseHandler.voegCompetentieToe(req.body.student, req.body.vak, req.body.cijfer, voegCompetentieToeCallBack, req , res);
+        if(isNaN(req.body.cijfer)){
+            res.status(400).end(JSON.stringify({err : "cijfer needs to be a number"}));
+        }else{
+            ledgerHandler.makeCredOffer(voegCompetentieToeCallBack ,req, res);
+        }
     }else{
         res.status(404).end(JSON.stringify({err : "you need to give an id"}));
     }
     
 })
 
-async function voegCompetentieToeCallBack(req ,res, err){
+async function voegCompetentieToeCallBack(req ,res, credOffer){
+    databaseHandler.voegCompetentieToe(req.body.student, req.body.vak, req.body.cijfer, JSON.stringify(credOffer),voegCompetentieToeCallBackNaDb, req , res);
+}
+
+async function voegCompetentieToeCallBackNaDb(req ,res, credOffer ,err){
     if(err){
         res.status(404).end(JSON.stringify({err : "something went wrong but what"}));
     }else{
         res.status(200).end(JSON.stringify({rsp : "nieuw competentie aangemaakt"}));
+
+        //todo Stuur hier nog een http request
+        // request.post({
+        //     headers: {'content-type' : 'application/json"'},
+        //     url:     'http://127.0.0.1:3000/api/makeMeATrustAnchor',
+        //     form:    {verinymDID: ledgerHandler.dids.veriynimDid , verinymverKey: ledgerHandler.dids.veriynimVerkey}
+        //   }, async function (err, res) {
+        //     if (err) return console.error(err.message);
+                
+        // })
     }
 }
 
@@ -144,6 +172,14 @@ async function connectieRequestAccepteerCallBackAfterDB(results, error, req, res
 
         console.log(results);
 
+        // [ RowDataPacket {
+        //     idStudent: 12,
+        //     didstudent: 'randomdid',
+        //     naamstudent: 'Jackie chan',
+        //     mijndid: 'LKkzikgGBrSzi53dt3eoWJ',
+        //     studentnummer: '403018',
+        //     verinym: 'randomverinym' } ]
+
         //todo Stuur hier nog een http request
         // request.post({
         //     headers: {'content-type' : 'application/json"'},
@@ -154,6 +190,25 @@ async function connectieRequestAccepteerCallBackAfterDB(results, error, req, res
                 
         // })
     }
+}
+
+async function competentieRequestOfferCallback(req, res, results ,error){
+    ledgerHandler.maakCompetentieAan(naam, studentnummer, vak, cijfer, ecs, comptenceOffer ,competenceRequest, competentieRequestOfferCallbackAfterLedger, req, res);
+}
+
+async function competentieRequestOfferCallbackAfterLedger(diplomaCred, req, res){
+    //stuur hier een http call
+    // request.post({
+    //     headers: {'content-type' : 'application/json"'},
+    //     url:     'http://127.0.0.1:3000/api/makeMeATrustAnchor',
+    //     form:    {verinymDID: ledgerHandler.dids.veriynimDid , verinymverKey: ledgerHandler.dids.veriynimVerkey}
+    //   }, async function (err, res) {
+    //     if (err) return console.error(err.message);
+    // })
+
+
+    //voeg het nog toe aan de database
+    databaseHandler.voegDiplomaCredToe(req.body.competentieOfferNR, diplomaCred);
 }
 
 module.exports = router;

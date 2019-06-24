@@ -12,6 +12,27 @@ var LedgerHandler = module.exports = {
     dids: undefined
 }
 
+LedgerHandler.maakCompetentieAan = async function(naam, studentnummer, vak, cijfer, ecs, comptenceOffer ,competenceRequest,callBack, req, res){
+    
+    let diploma_cred_values = {
+        "naam": {"raw": naam, "encoded": "123456789"},
+        "studentnummer": {"raw": studentnummer, "encoded": studentnummer},
+        "vak": {"raw": vak, "encoded": "123456789"},
+        "cijfer": {"raw": cijfer, "encoded": cijfer},
+        "ecs": {"raw": ecs, "encoded": ecs}
+    }
+
+    let [dimplomaCred, credRevocId, revocRegDelta] = await indy.issuerCreateCredential(LedgerHandler.walletHandle, comptenceOffer, competenceRequest, diploma_cred_values, null, 0);
+
+    callBack(dimplomaCred, req, res);
+}
+
+LedgerHandler.makeCredOffer= async function(callBack, req , res){
+    let credOffer = await indy.issuerCreateCredentialOffer(LedgerHandler.walletHandle, LedgerHandler.dids.diplomaCredDefId);
+
+    callBack(req, res, credOffer);
+}
+
 LedgerHandler.generateKeys = async function(idConnectieRequest, callBack, req, res){
     let[did, verkey] = await indy.createAndStoreMyDid(LedgerHandler.walletHandle, {});
     let nymRequest = await indy.buildNymRequest(LedgerHandler.dids.veriynimDid, did, verkey , null, null);

@@ -63,13 +63,25 @@ DataBaseHandler.getStudenten = function(callBack, req, res){
   }); 
 }
 
-DataBaseHandler.voegCompetentieToe = function(student, vak, cijfer, callBack, req, res){
-  connection.query(`INSERT INTO competentie (idStudent, idVak, cijfer) VALUES (?, ?, ?)`, [student, vak, cijfer] , function (error, results, fields) {    
-    callBack(req, res, error);
+DataBaseHandler.voegCompetentieToe = function(student, vak, cijfer, credOffer,callBack, req, res){
+  connection.query(`INSERT INTO competentie (idStudent, idVak, cijfer, competentieOffer) VALUES (?, ?, ?, ?);`, [student, vak, cijfer, credOffer] , function (error, results, fields) {    
+    callBack(req, res,credOffer ,error);
   }); 
 }
 
-DataBaseHandler.acceptConnectionRequest = async function(id, did,callBack, req, res){
+DataBaseHandler.haalCompetentieOp = function(competentieOfferNR, callBack, req, res){
+  connection.query(`SELECT * FROM competentie where idCompetentie = ?`, [ competentieOfferNR] , function (error, results, fields) {    
+    callBack(req, res, results ,error);
+  }); 
+}
+
+DataBaseHandler.voegDiplomaCredToe = function(competentieOfferNR, diplomaCred){
+  connection.query(`UPDATE competentie SET competentie = ? WHERE (idCompetentie = ?)`, [ competentieOfferNR, diplomaCred] , function (error, results, fields) { 
+    console.log(error);
+  }); 
+}
+
+DataBaseHandler.acceptConnectionRequest = function(id, did,callBack, req, res){
   connection.beginTransaction(function(err) {
     if (err) { 
       callBack(results, error, req, res); 
