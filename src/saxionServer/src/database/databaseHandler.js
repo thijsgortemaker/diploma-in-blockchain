@@ -65,12 +65,11 @@ DataBaseHandler.getStudenten = function(callBack, req, res){
 
 DataBaseHandler.voegCompetentieToe = function(student, vak, cijfer, callBack, req, res){
   connection.query(`INSERT INTO competentie (idStudent, idVak, cijfer) VALUES (?, ?, ?)`, [student, vak, cijfer] , function (error, results, fields) {    
-
     callBack(req, res, error);
   }); 
 }
 
-DataBaseHandler.acceptConnectionRequest = function(id, callBack, req, res){
+DataBaseHandler.acceptConnectionRequest = async function(id, did,callBack, req, res){
   connection.beginTransaction(function(err) {
     if (err) { 
       callBack(results, error, req, res); 
@@ -82,9 +81,9 @@ DataBaseHandler.acceptConnectionRequest = function(id, callBack, req, res){
         }else{
           let result = results[0];
     
-          connection.query(`INSERT INTO student (didstudent, naamstudent, mijndid, studentnummer, verinym) VALUES (?, ?, ?, ?, ?)`, [result.did, result.naam, "1234", result.studentnummer, result.verinym],function (error, results, fields) {    
+          connection.query(`INSERT INTO student (didstudent, naamstudent, mijndid, studentnummer, verinym) VALUES (?, ?, ?, ?, ?)`, [result.did, result.naam, did, result.studentnummer, result.verinym],function (error, resultsins, fields) {    
             if(error){
-              callBack(results, error, req, res);
+              callBack(resultsins, error, req, res);
             }else{
               connection.query(`DELETE FROM connectierequest WHERE idconnectierequest = ?`, id,function (error, results, fields){
                 if(error){
@@ -93,10 +92,12 @@ DataBaseHandler.acceptConnectionRequest = function(id, callBack, req, res){
                   connection.commit(function(err) {
                     if (err) {
                       return connection.rollback(function() {
-                        callBack(1, err, req, res);
+                        callBack(0, err, req, res);
                       });
                     }else{
-                      callBack(1, err, req, res);
+                      connection.query(`SELECT * FROM student where idStudent = ?`, resultsins.insertId,function (error, results, fields) {    
+                        callBack(results, error, req, res);
+                      }); 
                     }
                   });
                 }

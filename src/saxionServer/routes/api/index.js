@@ -1,6 +1,7 @@
 const router = require('express').Router();
 const auth = require('../auth');
 const databaseHandler = require('../../src/database/databaseHandler');
+const ledgerHandler = require('../../src/ledger/ledgerHandler');
 const jwt = require('jsonwebtoken');
 
 router.use('/user', require('./users'))
@@ -10,16 +11,14 @@ router.post('/connectieRequest', function(req, res) {
     
     if(body.naam && body.studentnummer && body.dids && body.verinym){
         if(isNaN(body.studentnummer)){
-            res.status(400).end(JSON.stringify({err : "studnetnummer needs to be a number"}));
+            res.status(400).end(JSON.stringify({err : "studentnummer needs to be a number"}));
         }else{
             databaseHandler.voegConnectieRequestToe(body.naam, body.studentnummer, body.dids, body.verinym ,connectieRequestCallback, req, res);
         }
-
     }else{
         res.status(400).end(JSON.stringify({err : "bad request"}));
     }
 })
-
 
 //check hier of de gebruiker een token heeft voor de calls naar de api
 router.use(function(req,rsp,next){
@@ -69,7 +68,7 @@ router.get('/connectieRequest', function(req, res) {
 
 router.post('/accepteerConnectionRequest', function(req, res) {
     if(req.body.id){
-        databaseHandler.acceptConnectionRequest(req.body.id, connectieRequestAccepteerCallBack, req , res);
+        ledgerHandler.generateKeys(req.body.id, connectieRequestAccepteerCallBack , req , res);
     }else{
         res.status(404).end(JSON.stringify({err : "you need to give an id"}));
     }
@@ -133,11 +132,27 @@ async function connectieRequestGetCallBack(results, err, req , res){
     }
 }
 
-async function connectieRequestAccepteerCallBack(results, err, req , res){
-    if(err){
+async function connectieRequestAccepteerCallBack(idConnectieRequest, did, req, res){
+    databaseHandler.acceptConnectionRequest(idConnectieRequest, did ,connectieRequestAccepteerCallBackAfterDB, req , res);
+}
+
+async function connectieRequestAccepteerCallBackAfterDB(results, error, req, res){
+    if(error){
         res.status(405).end(JSON.stringify({err : "error"}));
     }else{
         res.status(200).end(JSON.stringify({rsp : "nieuw connectie reuquest geaccepteert"}));
+
+        console.log(results);
+
+        //todo Stuur hier nog een http request
+        // request.post({
+        //     headers: {'content-type' : 'application/json"'},
+        //     url:     'http://127.0.0.1:3000/api/makeMeATrustAnchor',
+        //     form:    {verinymDID: ledgerHandler.dids.veriynimDid , verinymverKey: ledgerHandler.dids.veriynimVerkey}
+        //   }, async function (err, res) {
+        //     if (err) return console.error(err.message);
+                
+        // })
     }
 }
 

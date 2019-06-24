@@ -1,9 +1,13 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const databaseHandler = require('./src/database/databaseHandler');
+const ledgerHandler = require('./src/ledger/ledgerHandler');
 
 const PORT = 3000;
 const app = express();
+
+//global variabelen
+let server;
 
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(bodyParser.json());
@@ -11,16 +15,22 @@ app.use(bodyParser.json());
 app.use(require('./routes'));
 app.use(express.static('public'));
 
-//database
-databaseHandler.init();
+run();
 
-let server = app.listen(PORT, function () {
-    console.log('Listening on port: ' + PORT);
-});
+async function run(){
+    await ledgerHandler.init(PORT);
+    databaseHandler.init();
+
+    server = app.listen(PORT, function () {
+        console.log('Listening on port: ' + PORT);
+    });
+}
+
 
 //afsluiten van de server
 async function cleanup(){
     databaseHandler.close();
+    await ledgerHandler.close();
     console.log("cleanup");
     server.close();
     process.exit();
