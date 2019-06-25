@@ -12,19 +12,20 @@ router.get("/", function(req, rsp){
 
 router.post("/wallet-log-in", async function(req, rsp) {
     let walletName = req.body.username;
-    console.log('wallet log in is gecalled')
     let walletPassword = req.body.password;
-    let walletHandle;
+    let WALLET_NAME = {"id": walletName};
+    let WALLET_CRED = {"key": walletPassword};
 
     if(walletName == '' || walletPassword == '')
         rsp.status(401).json({err:'Expected two parameters.'});
     else {
         try {
-            walletHandle = await indy.openWallet(walletName, walletPassword);
+            walletHandle = await indy.openWallet(WALLET_NAME, WALLET_CRED);
         } catch(e) {
+
            // TODO: Proper error handling
            rsp.status(401).json({err:'Failed to log-in'});
-           return;
+           throw e;
         }
         rsp.status(200).json({success:'Success'});    
     }
