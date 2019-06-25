@@ -17,27 +17,13 @@ run();
 async function run(){
     await ledgerHandler.init(PORT);
 
-    //doe een request om de veriynyms te schrijven naar de ledger.
-    request.post({
-        headers: {'content-type' : 'application/json"'},
-        url:     'http://127.0.0.1:3000/api/makeMeATrustAnchor',
-        form:    {verinymDID: ledgerHandler.dids.veriynimDid , verinymverKey: ledgerHandler.dids.veriynimVerkey}
-      }, async function (err, res) {
-        if (err) return console.error(err.message);
-            
-        console.log(res.body);
-
-        await ledgerHandler.createPortAndIpLedgerAttr(PORT);
-    })
-
+    app.listen(PORT, function () {
+        console.log('Listening on port: ' + PORT);
+    });
 }
 
-app.listen(PORT, function () {
-    console.log('Listening on port: ' + PORT);
-});
-
 async function cleanup(){
-    await ledgerHandler.close();
+    //await ledgerHandler.close();
     console.log("cleanup");
     process.exit();
 }
@@ -58,11 +44,6 @@ process.on('SIGUSR1', function() {
 });
 
 process.on('SIGUSR2', function() {
-    cleanup();
-});
-
-//catches uncaught exceptions
-process.on('uncaughtException', function() {
     cleanup();
 });
 

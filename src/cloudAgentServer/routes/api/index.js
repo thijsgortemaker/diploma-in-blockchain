@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const indy = require('indy-sdk');
 
 router.get("/", function(req, rsp){
     console.log("Test is working");
@@ -8,23 +9,24 @@ router.get("/", function(req, rsp){
 /**
  * Log-in function.
  */
+
 router.post("/wallet-log-in", async function(req, rsp) {
-    let walletName = req.body.walletName;
-    let walletPassword = req.body.walletPassword;
+    let walletName = req.body.username;
+    console.log('wallet log in is gecalled')
+    let walletPassword = req.body.password;
     let walletHandle;
 
-    if(walletName !== '' || walletPassword !== '')
-        rsp.send('Expected two parameters.');
+    if(walletName == '' || walletPassword == '')
+        rsp.status(401).json({err:'Expected two parameters.'});
     else {
-
         try {
             walletHandle = await indy.openWallet(walletName, walletPassword);
         } catch(e) {
            // TODO: Proper error handling
-           rsp.send('Failed to log-in');
+           rsp.status(401).json({err:'Failed to log-in'});
            return;
         }
-        rsp.status(200).send('Success');    
+        rsp.status(200).json({success:'Success'});    
     }
 });
 
@@ -33,23 +35,26 @@ router.post("/wallet-log-in", async function(req, rsp) {
   * Register function.
   */
 router.post("/wallet-register", async function(req, rsp) {
-    let walletName = req.body.walletName;
-    let walletPassword = req.body.walletPassword;
+    let walletName = req.body.username;
+    let walletPassword = req.body.password;
+    let WALLET_NAME = {"id": walletName};
+    let WALLET_CRED = {"key": walletPassword};
+    
 
-    if(walletName !== '' || walletPassword !== '')
-        rsp.send('Expected two parameters.');
-    else {
+    if(walletName == '' || walletPassword == '') {
+        rsp.status(401).json({err:'Expected two parameters.'});
+    } else {
         try {
-            await indy.createWallet(walletName, walletPassword);
+           await indy.createWallet(WALLET_NAME, WALLET_CRED);
         } catch(e) {
             if(e.message == "WalletAlreadyExistsError")
-                rsp.send('Wallet exists, please log-in')
+                rsp.status(401).json({err:'Wallet exists, please log-in'});
             else {
-                rsp.send('Wallet failed to create.')
+                rsp.status(401).json({err:'Wallet failed to create'});
                 throw e;
             }
         }
-        rsp.status(200).send('Created wallet.')
+        rsp.status(200).json({success:'Success'});    
     }
 });
 

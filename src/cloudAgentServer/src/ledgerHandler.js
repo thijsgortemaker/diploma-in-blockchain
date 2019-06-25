@@ -13,11 +13,11 @@ var LedgerHandler = module.exports = {
 }
 
 LedgerHandler.init= async function (){
-    await initPoolAndWallet();
+    //await initPoolAndWallet();
 }
 
 LedgerHandler.close = async function (){
-    await closePoolAndWallet();
+    //await closePoolAndWallet();
 }
 
 async function closePoolAndWallet(){

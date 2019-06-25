@@ -1,0 +1,58 @@
+/** START CSS FOR NAV **/
+#logo-ting {
+    font: x-large;
+    background-color: forestgreen;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #333;
+}
+
+li {
+    float: left;
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+li:hover {
+    background-color: #111;
+}
+
+/** START CSS FOR OFFER **/
+.incoming-offer {
+    width: 200px;
+    border: 3px solid black;
+    border-radius: 6px;
+    margin: 5px;
+}
+
+.incoming-offer #buttons {
+    padding-left: 50px;
+}
+
+/** START CSS FOR CREDENTIAL **/
+.credential {
+    width: 200px;
+    border: 3px solid black;
+    border-radius: 6px;
+    margin: 5px;
+}
+
+/** START CSS FOR LOG-IN **/
+.log-in-prompt {
+    position: fixed;
+    top: 25%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.log-in-prompt input {
+    width: 250px;
+}
