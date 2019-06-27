@@ -2,6 +2,44 @@
     color:red;
   }
 
+  .log-in-prompt {
+    position: fixed;
+    top: 25%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.log-in-prompt input {
+    width: 250px;
+}
+
+#logo-ting {
+  font: x-large;
+  background-color: cornflowerblue;
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+}
+
+li {
+  float: left;
+  display: block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+li:hover {
+  background-color: #111;
+}
+
+
   #snackbar {
     visibility: hidden;
     min-width: 250px;

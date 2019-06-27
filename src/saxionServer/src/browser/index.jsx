@@ -61,13 +61,13 @@ function gaNaarGeefCompetentieUitScherm(){
 }
 
 
-function gotoPage(event, props){
+function gotoPage(event, props, node){
   let page;
 
   if(props.$pageNumber){
     page = props.$pageNumber;
   }else{
-    page = event.toElement.value;
+    page = node.value;
   }
 
   mount.unmount();
@@ -81,6 +81,7 @@ function gotoPage(event, props){
   }else if(page == 3){
     gaNaarGeefCompetentieUitScherm();
   }
+  // dd
 }
 
 function logOut(){
@@ -88,12 +89,15 @@ function logOut(){
   mount = glasgow.mount(document.body, logIn);
 }
 
-function navigationBar(){
-  return <div>
-    <button name="name" value="1" type="submit" onclick={gotoPage}>Connectie requesten</button>
-    <button name="name" value="2" type="submit" onclick={gotoPage}>Vak aanmaken</button>
-    <button name="name" value="3" type="submit" onclick={gotoPage}>Geef competentie uit</button>
-    <button name="name" value="0" type="submit" onclick={gotoPage}>Log uit</button><br/><br/>
+function navigationBar() {
+  return <div class="navbar">
+      <ul>
+          <li id="logo-ting">Saxion</li>
+          <li value="1" onclick={gotoPage}>Connectie requesten</li>
+          <li value="2" onclick={gotoPage}>Vak aanmaken</li>
+          <li value="3" onclick={gotoPage}>Geef competentie uit</li>
+          <li value="0" onclick={gotoPage}>Log out</li>
+      </ul>
   </div>
 }
 
@@ -128,15 +132,14 @@ function accepteerConnectionRequest(event, props){
 }
 
 function vakAanmakenScherm(){
-  return <main>
-    <h1>Saxion</h1>
+  return <div class="vak-aanmaken">
     {navigationBar()}
     <div id ="vakAanmaakError" hidden><span>Vervang dit met een error</span><br/></div>
     <span>Naam vak </span><input type="text" binding="$naamvak"/><br/>
     <span>Omschrijving vak </span><input type="text" binding="$omschrijving"/><br/>
     <span>ecs </span><input type="text" binding="$ecs"/><br/>
     <input type="submit" value="Maak vak aan" onclick = {doeVakAanmaakRequest}/>
-  </main>
+  </div>
 }
 
 function geefCompetentieUitScherm(props){
@@ -144,7 +147,6 @@ function geefCompetentieUitScherm(props){
   let vakken = props.vakken;
   
   return <main>
-    <h1>Saxion</h1>
     {navigationBar()}
     <div id ="competentieSchermError" hidden><span>Vervang dit met een error</span><br/></div>
     <span>student:</span>
@@ -176,13 +178,13 @@ function geefCompetentieUit(event, props){
 }
 
 function logIn() {      
-  return <main>
-    <h1>Saxion</h1>
-    <div id ="inlogSchermError" hidden><span>Vervang dit met een error</span><br/></div>
-    <span>Gebruikersnaam: </span><input type="text" binding="$username"/><br/>
-    <span>Wachtwoord: </span><input type="password" binding="$password"/><br/>
-    <input type="submit" value="Log in" onclick = {doLoginRequest}/>
-  </main>
+  return <div class="log-in-prompt">
+    <h1>Saxion Log-in</h1>
+        <div id ="inlogSchermError" hidden><span>Vervang dit met een error</span><br/></div>
+        <input placeholder="Username" type="text" binding="$username"/><br/>
+        <input placeholder="Password" type="password" binding="$password"/><br/>
+        <input type="submit" value="Log in" onclick={doLoginRequest}/>
+    </div>
 }
 
 

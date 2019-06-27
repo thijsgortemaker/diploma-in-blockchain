@@ -1,9 +1,9 @@
 const router = require('express').Router();
 const indy = require('indy-sdk');
-
-//expexted token values wallethandle, did ,verkey , name
+const userMap = require('../../src/userMap');
 const jwt = require('jsonwebtoken');
 const JWT_SECRET = "superSECRET";
+
 
 // let decoded = jwt.verify(req.headers.authorization, JWT_SECRET);
 // clientId = decoded.clientId;
@@ -25,6 +25,7 @@ router.post("/wallet-log-in", async function(req, rsp) {
     let walletPassword = req.body.password;
     let WALLET_NAME = {"id": walletName};
     let WALLET_CRED = {"key": walletPassword};
+    let token; 
 
     if(walletName == '' || walletPassword == '')
         rsp.status(401).json({err:'Expected two parameters.'});
@@ -32,20 +33,23 @@ router.post("/wallet-log-in", async function(req, rsp) {
         try {
             let walletHandle = await indy.openWallet(WALLET_NAME, WALLET_CRED);
             let [Did, Verkey] = await getmydid(walletHandle);
-            let token = jwt.sign({
+            token = jwt.sign({
                 wallethandle: walletHandle,
                 did: Did,
                 verkey: Verkey,
                 name: walletName
             }, JWT_SECRET);
-            rsp.json({token: token});
-            rsp.status(200).send('Success');
+            for (var key of userMap.map.keys()) {
+                console.log(key);
+              }
+            userMap.map.get(walletName).walletHandle = walletHandle;
         } catch (e) {
-            // TODO: Proper error handling
-            rsp.send('Failed to log-in');
-            return;
+            rsp.status(500).json({err:'An error with indy occured',
+                        stack:e});
+            throw e;
         }
-        rsp.status(200).send('Success');
+        rsp.status(200).json({success:'logged in',
+                                token:token});
     }
 });
 
@@ -68,25 +72,74 @@ router.post("/wallet-register", async function(req, rsp) {
             let walletHandle = await indy.openWallet(WALLET_NAME, WALLET_CRED);
             let [Did, Verkey] = await indy.createAndStoreMyDid(walletHandle, {})
             await indy.setDidMetadata(walletHandle, Did, "mydid");
-            //todo save global did and name
             let token = jwt.sign({
                 wallethandle: walletHandle,
                 did: Did,
                 verkey: Verkey,
                 name: walletName
             }, JWT_SECRET);
-            rsp.json({token: token});
+            let masterSecret = await indy.proverCreateMasterSecret(walletHandle, null);
+            let userObject = {secret: masterSecret,
+                                walletName: walletName,
+                                walletHandle: walletHandle,
+                                incomingOffers: []};
+            
+            userMap.map.set(walletName, userObject);
+            await indy.closeWallet(walletHandle);
+            rsp.status(201).json({success:'Created wallet.',
+                                    token:token})
         } catch (e) {
-            if (e.message == "WalletAlreadyExistsError")
-                rsp.send('Wallet exists, please log-in')
-            else {
-                rsp.send('Wallet failed to create.')
+            if (e.message == "WalletAlreadyExistsError") {
+                rsp.status(400).json({err:'Wallet already exists. User should log-in instead.'})
+                throw e;
+            } else {
+                rsp.status(400).json({err:'Wallet failed to create due to and indy error, stack below.',
+                            stack:e})
                 throw e;
             }
         }
-        rsp.status(200).send('Created wallet.')
     }
 });
+
+// TODO ERROR HANDLING
+router.post('get-all-offers', async function(req, rsp) {
+    let decoded = jwt.verify(req.headers.authorization, JWT_SECRET);
+    let userName = decoded.name;
+    let offerList = userMap.getmap().get(userName).incomingOffers;
+    rsp.send(200).json({success:offerList});
+})
+
+// TODO ERROR HANDLING
+router.post('receive-cred-offer', async function(req, rsp) {
+    let vak = req.body.vak;
+    let userName = req.body.username;
+    let competenceOffer = req.body.competenceOffer;
+    let grade = req.body.grade;
+
+    let offer = {
+        vak: vak,
+        grade: grade,
+        competenceOffer: competenceOffer
+    }
+
+    userMap.getmap().get(userName).incomingOffers.push(offer);
+    rsp.status(200).json({success:'cred offer received'});
+});
+
+router.post('accept-cred-offer', async function(req, rsp) {
+    let decoded = jwt.verify(req.headers.authorization, JWT_SECRET);
+    let userName = decoded.name;
+    
+    let poolHandle; // heb ik nodig ?
+    let did; // ???
+    let schemaId; // ??
+
+    let getCredDefRequest = await indy.buildGetCredDefRequest(did, schemaId);
+    let getCredDefResponse = await indy.submitRequest(poolHandle, getCredDefRequest);
+    let credDef = await indy.parseGetCredDefResponse(getCredDefResponse);
+    await indy.proverStoreCredential(walletHandleProver, null, competenceRequestMeta, dimplomaCred, diplomaCredDefGet, null);
+
+})
 
 
 router.post("/sendreq", async function (req, rsp) {
@@ -109,7 +162,7 @@ router.post("/sendreq", async function (req, rsp) {
             await indy.setDidMetadata(decoded.walletHandle, from_to_did, "to" + conectionname);
             //todo send req
             //send
-
+                // pool handle
             //poll handel?? or send req to vernim to send
             //await indy.signAndSubmitRequest(poolHandle, walletHandle, Did, nymRequest);
             //  log("send conection req")
@@ -122,11 +175,11 @@ router.post("/sendreq", async function (req, rsp) {
                 'name': decoded.name
             };
             // request.post({
-            //     headers: {'content-type' : 'application/json"'},
+             //     headers: {'content-type' : 'application/json"'},
             //     url:     'http://127.0.0.1:3000/api/connectieRequest',
             //     form:    {verinymDID: ledgerHandler.dids.veriynimDid , verinymverKey: ledgerHandler.dids.veriynimVerkey}
             //   }, async function (err, res) {
-            //     if (err) return console.error(err.message);
+            //    if (err) return console.error(err.message);
 
             // })
             //todo return connection req
@@ -168,6 +221,7 @@ router.get("/increq", async function (req, rsp) {
 router.get("/diploma", async function (req, rsp) {
     let decoded = jwt.verify(req.headers.authorization, JWT_SECRET);
 
+
     if (false) {
         //param check
     } else {
@@ -187,7 +241,6 @@ async function getmydid(wh) {
     for (i in all) {
         values = all[i];
         if (values.metadata == "mydid") {
-            log("succes")
             did = values.did;
             verkey = values.verkey;
         }

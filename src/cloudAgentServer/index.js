@@ -2,6 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const request = require('request');
 const ledgerHandler = require('./src/ledgerHandler');
+const userMap = require('./src/userMap');
 
 const PORT = 3001;
 const app = express();
@@ -16,6 +17,7 @@ run();
 
 async function run(){
     await ledgerHandler.init(PORT);
+    userMap.init();
 
     app.listen(PORT, function () {
         console.log('Listening on port: ' + PORT);
@@ -25,6 +27,7 @@ async function run(){
 async function cleanup(){
     //await ledgerHandler.close();
     console.log("cleanup");
+    userMap.close();
     process.exit();
 }
 

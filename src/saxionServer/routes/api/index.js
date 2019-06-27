@@ -11,12 +11,12 @@ router.post('/connectieRequest', function(req, res) {
     
     if(body.naam && body.studentnummer && body.dids && body.verinym){
         if(isNaN(body.studentnummer)){
-            res.status(400).end(JSON.stringify({err : "studentnummer needs to be a number"}));
+            res.status(400).json({err : "studentnummer needs to be a number"});
         }else{
             databaseHandler.voegConnectieRequestToe(body.naam, body.studentnummer, body.dids, body.verinym ,connectieRequestCallback, req, res);
         }
     }else{
-        res.status(400).end(JSON.stringify({err : "bad request"}));
+        res.status(400).json({err : "Expected four parameters."});
     }
 })
 
@@ -26,7 +26,7 @@ router.post('/competentieRequest', function(req, res) {
     if(body.competentieRequest, body.competentieOfferNR){
         databaseHandler.haalCompetentieOp(body.competentieOfferNR, competentieRequestOfferCallback, req, res);
     }else{
-        res.status(400).end(JSON.stringify({err : "bad request"}));
+        res.status(400).json({err : "Expected two parameters"});
     }
 })
 
