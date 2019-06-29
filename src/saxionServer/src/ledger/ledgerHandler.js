@@ -12,8 +12,12 @@ var LedgerHandler = module.exports = {
     dids: undefined
 }
 
+/**
+ * Maakt een competentie aan met de gegeven competentie request
+ */
 LedgerHandler.maakCompetentieAan = async function(naam, studentnummer, vak, cijfer, ecs, comptenceOffer , competenceRequest, callBack, req, res){
     
+    //alle values moeten een string zijn!
     let transcript_cred_values = {
         "naam": {"raw": naam + "", "encoded": "123456789"},
         "studentnummer": {"raw": studentnummer + "", "encoded": studentnummer + ""},
@@ -22,34 +26,52 @@ LedgerHandler.maakCompetentieAan = async function(naam, studentnummer, vak, cijf
         "ecs": {"raw": ecs + "", "encoded": ecs + ""}
     }
 
+    //maak de credential aan
     let [dimplomaCred, credRevocId, revocRegDelta] = await indy.issuerCreateCredential(LedgerHandler.walletHandle, comptenceOffer, competenceRequest, transcript_cred_values, null, 0);
 
     callBack(dimplomaCred, req, res);
 }
 
+/**
+ * Maak een offer om een cred uit te geven
+ */
 LedgerHandler.makeCredOffer= async function(callBack, req , res){
     let credOffer = await indy.issuerCreateCredentialOffer(LedgerHandler.walletHandle, LedgerHandler.dids.diplomaCredDefId);
 
     callBack(req, res, credOffer);
 }
 
+/**
+ * Genereer keys voor het uitwisselen van de keys.
+ * Wordt ook meteen naar de ledger geschreven
+ */
 LedgerHandler.generateKeys = async function(idConnectieRequest, callBack, req, res){
+    //genereer keys
     let[did, verkey] = await indy.createAndStoreMyDid(LedgerHandler.walletHandle, {});
+    
+    //schrijf naar de ledger
     let nymRequest = await indy.buildNymRequest(LedgerHandler.dids.veriynimDid, did, verkey , null, null);
     await indy.signAndSubmitRequest(LedgerHandler.poolHandle, LedgerHandler.walletHandle, LedgerHandler.dids.veriynimDid, nymRequest);
 
     callBack(idConnectieRequest, did, req, res);
 }
 
+/**
+ * Sluit de ledger af
+ */
 LedgerHandler.close = async function (){
     //write out the dids
     let data = JSON.stringify(LedgerHandler.dids);  
     fs.writeFileSync('dids.json', data);  
 
-    // await indy.closeWallet(LedgerHandler.walletHandle);
+    await indy.closeWallet(LedgerHandler.walletHandle);
     await indy.closePoolLedger(LedgerHandler.poolHandle);
 }
 
+/**
+ * Init de ledgerhandler door te verbinden met de pool en een wallet aan te maken
+ * Zoekt een pool_genesis file in de project directory genaamd pool_genesis.txn
+ */
 LedgerHandler.init= async function (port){
     await indy.setProtocolVersion(2);
 
@@ -62,6 +84,10 @@ LedgerHandler.init= async function (port){
     console.log("Connected with pool and opend wallet");
 }
 
+
+/**
+ * Connect met de pool 
+ */
 async function connectMetPool(){
     //vind de geneiss file. In dit project zit het in de code map. Een map hoger dan deze
     const genesisFilePath = path.join(__dirname, '..', '..', 'pool_genesis.txn');
@@ -80,6 +106,10 @@ async function connectMetPool(){
     LedgerHandler.poolHandle = await indy.openPoolLedger(POOL_NAME, undefined);
 }
 
+/**
+ * Maak de Saxion wallet aan. Genereer een did en maak deze een trust anchor. Hierna maak een schema aan en stuur deze naar de ledger.
+ * Stuur de cred def naar de ledger.
+ */
 async function createSaxionWallet(){
     try{
         //maak de wallet aan
@@ -104,6 +134,7 @@ async function createSaxionWallet(){
         //je moet de schema weer ophalen wil je het gebruiken
         [, diplomaSchema] = await getSchema(poolHandle, did, diplomaSchemaId);
 
+        //maak een cred def aan
         console.log("send Cred def");
         let [diplomaCredDefId, diplomaCredDefJson] = await indy.issuerCreateAndStoreCredentialDef(walletHandle, did, diplomaSchema, 'TAG1', 'CL', '{"support_revocation": false}');
         await sendCredDef(poolHandle, walletHandle, did, diplomaCredDefJson);
@@ -121,6 +152,14 @@ async function createSaxionWallet(){
     }
 }
 
+/**
+ * Maakt een steward wallet aan. Deze wallet heeft een did gegenereerd met een seed.
+ * In de echt wereld is de steward een andere entiteit. Omdat dit een lokaal netwerk is kan de steward
+ * did gegenereerd worden. Hiermee kan elke did makkelijk een trust anchor did gemaakt worden.
+ * Een trust anchor kan dingen schrijven naar de ledger wat andere dids niet kunnen.
+ * @param {*} didOther die een Trust anchor gemaakt moet worden
+ * @param {*} verkeyOther  die een Trust anchor gemaakt moet worden
+ */
 async function makeTrustAnchor(didOther, verkeyOther){
     let stewardname = {"id": "testStewardWallet"};
     let stewardKey = {"key": "testStewardCredential"};
@@ -139,12 +178,26 @@ async function makeTrustAnchor(didOther, verkeyOther){
     await indy.deleteWallet(stewardname, stewardKey);
 }
 
+/**
+ * Stuur schema naar ledger
+ * @param {*} poolHandle 
+ * @param {*} walletHandle 
+ * @param {*} Did 
+ * @param {*} schema 
+ */
 async function sendSchema(poolHandle, walletHandle, Did, schema) {
     let schemaRequest = await indy.buildSchemaRequest(Did, schema);
     let response = await indy.signAndSubmitRequest(poolHandle, walletHandle, Did, schemaRequest)
     console.log(response);
 }
 
+/**
+ * Stuur cred def naar ledger
+ * @param {} poolHandle 
+ * @param {*} walletHandle 
+ * @param {*} did 
+ * @param {*} credDef 
+ */
 async function sendCredDef(poolHandle, walletHandle, did, credDef) {
     let credDefRequest = await indy.buildCredDefRequest(did, credDef);
     let response = await indy.signAndSubmitRequest(poolHandle, walletHandle, did, credDefRequest);
@@ -175,12 +228,24 @@ async function createPortAndIpLedgerAttr(port){
     console.log(reply.result.txn.data.raw);
 }
 
+/**
+ * Krijg schema van de ledger
+ * @param {} poolHandle 
+ * @param {*} did 
+ * @param {*} schemaId 
+ */
 async function getSchema(poolHandle, did, schemaId) {
     let getSchemaRequest = await indy.buildGetSchemaRequest(did, schemaId);
     let getSchemaResponse = await indy.submitRequest(poolHandle, getSchemaRequest);
     return await indy.parseGetSchemaResponse(getSchemaResponse);
 }
 
+/**
+ * Krijg schema van de ledger
+ * @param {*} poolHandle 
+ * @param {*} did 
+ * @param {*} schemaId 
+ */
 async function getCredDef(poolHandle, did, schemaId) {
     let getCredDefRequest = await indy.buildGetCredDefRequest(did, schemaId);
     let getCredDefResponse = await indy.submitRequest(poolHandle, getCredDefRequest);
