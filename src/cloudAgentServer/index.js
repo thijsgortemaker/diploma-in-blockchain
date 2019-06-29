@@ -25,7 +25,7 @@ async function run(){
 }
 
 async function cleanup(){
-    //await ledgerHandler.close();
+    await ledgerHandler.close();
     console.log("cleanup");
     userMap.close();
     process.exit();

@@ -8,6 +8,17 @@ glasgow.setDebug(1);
 let mount = glasgow.mount(document.body, logInPage);
 let token;
 
+window.onbeforeunload = closingCode;
+function closingCode(){
+    HTTPrequest('POST', '/api/logOut', {}, function(body){
+        if(body.err){
+        }else{
+            token = undefined;
+            mount = glasgow.mount(document.body, logInPage);
+        }
+    });
+}
+
 function doLoginRequest(event, props){
     HTTPrequest('POST', '/api/wallet-log-in', {username: props.$username, password: props.$password}, function(body){
         if(body.err){
@@ -28,7 +39,48 @@ function doRegisterRequest(event, props) {
             errorElement.hidden = false;
             errorElement.firstChild.innerHTML = body.err;
         } else {
+            token = body.token;
             gotoPage(null, {$pageNumber: 2});
+        }
+    });
+}
+
+function sendConnectieRequest(event, props) {
+    HTTPrequest('POST', '/api/sendreq', {naam: props.$naam, studentNummer: props.$studentNummer}, function (body) {
+        if (body.err) {
+        } else {
+            gotoPage(null, {$pageNumber: 2});
+            showSnackBarMessage("succes");
+        }
+    });
+}
+
+function getAllCredentials(event, props) {
+    console.log("hallo");
+    HTTPrequest('GET', '/api/credentials', {}, function (body) {
+        if (body.err) {
+        } else {
+            mount = glasgow.mount(document.body, myCredentialsPage, body);
+        }
+    });
+}
+
+function doOffersRequest(event, props) {
+    HTTPrequest('GET', '/api/get-all-offers', {}, function (body) {
+        if (body.err) {
+        } else {
+            mount = glasgow.mount(document.body, offersPage, body);
+        }
+    });
+}
+
+function accepteerCredOffer(event, props) {
+    console.log(event);
+
+    HTTPrequest('POST', '/api/accept-cred-offer', {id: props.offer.id}, function (body) {
+        if (body.err) {
+        } else {
+            gotoPage(null, {$pageNumber: 3});            
         }
     });
 }
@@ -47,36 +99,53 @@ function gotoPage(event, props, node) {
     if (page == 0) {
         mount = glasgow.mount(document.body, logInPage);
     } else if (page == 1) {
-        mount = glasgow.mount(document.body, myCredentialsPage);
+        getAllCredentials();
     } else if (page == 2) {
         mount = glasgow.mount(document.body, connRequestPage);
     } else if (page == 3) {
-        mount = glasgow.mount(document.body, offersPage);
+        doOffersRequest();
     } else if (page == 4) {
-        mount = glasgow.mount(document.body, incomingreq);
-    } else if (page == 5) {
+        closingCode();
+    }else if(page == 5){
         mount = glasgow.mount(document.body, registerPage);
     }
-
 }
 
 function connRequestPage() {
     return <main>
     {navigationBar()}
-    <p>Enter Verinym: </p>
-    <form>
-        <input type="text"></input>
-        <button type="submit">Send Request</button>
-    </form>
+    <span>Doe connectie request naar saxion</span><br/>
+    <span>Enter naam:</span> <input type="text" binding="$naam"></input><br/>
+    <span>Enter studentnummer:</span> <input type="text" binding="$studentNummer"></input><br/> 
+    <input type="submit" value="stuur connectie request" onclick = {sendConnectieRequest}/><br/>
   </main>
 }
 
-function myCredentialsPage() {
+function myCredentialsPage(props) {
+    let creds = props.success;
+
     return <main>
     {navigationBar()}
-    {myCredentialsList()}
+    <div id="credentials-list">
+        {creds.map(cred => <ACredential cred = {cred} />)}
+    </div>
+    
   </main>
 }
+
+/**
+ * Element for a single credential.
+ */
+function ACredential(props) {
+    console.log(props);
+
+    return <div class="credential">
+        <h4>Credential</h4>
+        <p>Issued By: Saxion</p>
+        <p>Extra info: {JSON.stringify(props.cred)}</p>
+    </div>
+}
+
 
 function logInPage() {
     return <div class="log-in-prompt">
@@ -99,10 +168,13 @@ function registerPage() {
     </div> 
 }
 
-function offersPage() {
+function offersPage(props) {
+    let offers = props.success;
+
     return <main>
     {navigationBar()}
-    {incomingOfferList()}
+    <h3>Incoming offers: </h3>
+    {offers.map(offer => <IncomingOffer offer = {offer} />)}
   </main>
 }
 
@@ -119,56 +191,21 @@ function navigationBar() {
 }
 
 /**
- * All incoming offers should be listed here.
- */
-function incomingOfferList() {
-    return <div id="offers-list">
-        <h3>Incoming offers: </h3>
-        {incomingOffer()}
-        {incomingOffer()}
-    </div>
-}
-
-/**
  * Element for a single offer.
  */
-function incomingOffer() {
+function IncomingOffer(props) {
+    let offer = props.offer;
+
     return <div class="incoming-offer">
         <p>Offer</p>
-        <p>From: </p>
-        <p>Schema: </p>
-        <p>Extra info:</p>
+        <p>From: Saxion</p>
+        <p>Vak: {offer.vak}</p>
         <div id="buttons">
-            <button id="accept-offer">Accept</button>
+            <input type="submit" value="accepteer" onclick={accepteerCredOffer}/>
             <button id="decline-offer">Decline</button>
         </div>
     </div>
 }
-
-/**
- * List of all users credentials.
- */
-function myCredentialsList() {
-    return <div id="credentials-list">
-        <h3>My Credentials: </h3>
-        {aCredential()}
-        {aCredential()}
-    </div>
-}
-
-/**
- * Element for a single credential.
- */
-function aCredential() {
-    return <div class="credential">
-        <h4>Credential</h4>
-        <p>Issued By: </p>
-        <p>Grade: </p>
-        <p>Extra info:</p>
-    </div>
-}
-
-
 
 //standaard methode om requesten te doen naar de server.
 function HTTPrequest(method, url, body, cb){
@@ -187,6 +224,10 @@ function HTTPrequest(method, url, body, cb){
     
     xhr.open(method, url, true);
     
+    if(token){
+        xhr.setRequestHeader("Authorization", token);
+    }
+
     if(body != null){
       xhr.setRequestHeader("Content-Type", "application/json");
     }

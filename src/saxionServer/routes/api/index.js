@@ -3,17 +3,18 @@ const auth = require('../auth');
 const databaseHandler = require('../../src/database/databaseHandler');
 const ledgerHandler = require('../../src/ledger/ledgerHandler');
 const jwt = require('jsonwebtoken');
+const request = require('request');
 
 router.use('/user', require('./users'))
 
 router.post('/connectieRequest', function(req, res) {
     let body = req.body;
-    
-    if(body.naam && body.studentnummer && body.dids && body.verinym){
+
+    if(body.naam && body.studentnummer && body.did && body.walletNaam){
         if(isNaN(body.studentnummer)){
             res.status(400).json({err : "studentnummer needs to be a number"});
         }else{
-            databaseHandler.voegConnectieRequestToe(body.naam, body.studentnummer, body.dids, body.verinym ,connectieRequestCallback, req, res);
+            databaseHandler.voegConnectieRequestToe(body.naam, body.studentnummer, body.did, body.walletNaam ,connectieRequestCallback, req, res);
         }
     }else{
         res.status(400).json({err : "Expected four parameters."});
@@ -22,7 +23,7 @@ router.post('/connectieRequest', function(req, res) {
 
 router.post('/competentieRequest', function(req, res) {
     let body = req.body;
-    
+
     if(body.competentieRequest, body.competentieOfferNR){
         databaseHandler.haalCompetentieOp(body.competentieOfferNR, competentieRequestOfferCallback, req, res);
     }else{
@@ -101,21 +102,22 @@ async function voegCompetentieToeCallBack(req ,res, credOffer){
     databaseHandler.voegCompetentieToe(req.body.student, req.body.vak, req.body.cijfer, JSON.stringify(credOffer),voegCompetentieToeCallBackNaDb, req , res);
 }
 
-async function voegCompetentieToeCallBackNaDb(req ,res, credOffer ,err){
+async function voegCompetentieToeCallBackNaDb(req ,rsp, credOffer,student,vak ,competentie,err){
     if(err){
-        res.status(404).end(JSON.stringify({err : "something went wrong but what"}));
+        rsp.status(404).end(JSON.stringify({err : "something went wrong but what"}));
     }else{
-        res.status(200).end(JSON.stringify({rsp : "nieuw competentie aangemaakt"}));
-
         //todo Stuur hier nog een http request
-        // request.post({
-        //     headers: {'content-type' : 'application/json"'},
-        //     url:     'http://127.0.0.1:3000/api/makeMeATrustAnchor',
-        //     form:    {verinymDID: ledgerHandler.dids.veriynimDid , verinymverKey: ledgerHandler.dids.veriynimVerkey}
-        //   }, async function (err, res) {
-        //     if (err) return console.error(err.message);
-                
-        // })
+        request.post({
+            headers: {'content-type' : 'application/json"'},
+            url:     'http://127.0.0.1:3001/api/studentCredOffer',
+            form:    {username: student.verinym, competenceOffer: credOffer, vak: vak.vaknaam, cijfer: vak, idComp: competentie.idCompetentie}
+          }, async function (err, res) {
+            if (err){ 
+                rsp.status(400).end(JSON.stringify({err: "Something went front"}))
+            }else{
+                rsp.status(200).end(JSON.stringify({rsp: "request made"}))
+            } 
+        })
     }
 }
 
@@ -169,43 +171,22 @@ async function connectieRequestAccepteerCallBackAfterDB(results, error, req, res
         res.status(405).end(JSON.stringify({err : "error"}));
     }else{
         res.status(200).end(JSON.stringify({rsp : "nieuw connectie reuquest geaccepteert"}));
-
-        console.log(results);
-
-        // [ RowDataPacket {
-        //     idStudent: 12,
-        //     didstudent: 'randomdid',
-        //     naamstudent: 'Jackie chan',
-        //     mijndid: 'LKkzikgGBrSzi53dt3eoWJ',
-        //     studentnummer: '403018',
-        //     verinym: 'randomverinym' } ]
-
-        //todo Stuur hier nog een http request
-        // request.post({
-        //     headers: {'content-type' : 'application/json"'},
-        //     url:     'http://127.0.0.1:3000/api/makeMeATrustAnchor',
-        //     form:    {verinymDID: ledgerHandler.dids.veriynimDid , verinymverKey: ledgerHandler.dids.veriynimVerkey}
-        //   }, async function (err, res) {
-        //     if (err) return console.error(err.message);
-                
-        // })
     }
 }
 
-async function competentieRequestOfferCallback(req, res, results ,error){
-    ledgerHandler.maakCompetentieAan(naam, studentnummer, vak, cijfer, ecs, comptenceOffer ,competenceRequest, competentieRequestOfferCallbackAfterLedger, req, res);
+async function competentieRequestOfferCallback(req, res, competentie, student, vak,error){  
+    ledgerHandler.maakCompetentieAan(
+        student.naamstudent, 
+        student.studentnummer, 
+        vak.vaknaam, 
+        competentie.cijfer, 
+        vak.ecs, 
+        competentie.competentieOffer ,
+        req.body.competentieRequest, competentieRequestOfferCallbackAfterLedger, req, res);
 }
 
 async function competentieRequestOfferCallbackAfterLedger(diplomaCred, req, res){
-    //stuur hier een http call
-    // request.post({
-    //     headers: {'content-type' : 'application/json"'},
-    //     url:     'http://127.0.0.1:3000/api/makeMeATrustAnchor',
-    //     form:    {verinymDID: ledgerHandler.dids.veriynimDid , verinymverKey: ledgerHandler.dids.veriynimVerkey}
-    //   }, async function (err, res) {
-    //     if (err) return console.error(err.message);
-    // })
-
+    res.status(200).json({rsp:diplomaCred});
 
     //voeg het nog toe aan de database
     databaseHandler.voegDiplomaCredToe(req.body.competentieOfferNR, diplomaCred);

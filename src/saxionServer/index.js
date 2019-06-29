@@ -18,9 +18,8 @@ app.use(express.static('public'));
 run();
 
 async function run(){
-    // await ledgerHandler.init(PORT);
-    // databaseHandler.init();
-    /// 
+    await ledgerHandler.init(PORT);
+    databaseHandler.init();
     server = app.listen(PORT, function () {
         console.log('Listening on port: ' + PORT);
     });

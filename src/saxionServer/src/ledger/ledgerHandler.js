@@ -12,17 +12,17 @@ var LedgerHandler = module.exports = {
     dids: undefined
 }
 
-LedgerHandler.maakCompetentieAan = async function(naam, studentnummer, vak, cijfer, ecs, comptenceOffer ,competenceRequest,callBack, req, res){
+LedgerHandler.maakCompetentieAan = async function(naam, studentnummer, vak, cijfer, ecs, comptenceOffer , competenceRequest, callBack, req, res){
     
-    let diploma_cred_values = {
-        "naam": {"raw": naam, "encoded": "123456789"},
-        "studentnummer": {"raw": studentnummer, "encoded": studentnummer},
-        "vak": {"raw": vak, "encoded": "123456789"},
-        "cijfer": {"raw": cijfer, "encoded": cijfer},
-        "ecs": {"raw": ecs, "encoded": ecs}
+    let transcript_cred_values = {
+        "naam": {"raw": naam + "", "encoded": "123456789"},
+        "studentnummer": {"raw": studentnummer + "", "encoded": studentnummer + ""},
+        "vak": {"raw": vak + "", "encoded": "123456789"},
+        "cijfer": {"raw": cijfer + "", "encoded": cijfer+ ""},
+        "ecs": {"raw": ecs + "", "encoded": ecs + ""}
     }
 
-    let [dimplomaCred, credRevocId, revocRegDelta] = await indy.issuerCreateCredential(LedgerHandler.walletHandle, comptenceOffer, competenceRequest, diploma_cred_values, null, 0);
+    let [dimplomaCred, credRevocId, revocRegDelta] = await indy.issuerCreateCredential(LedgerHandler.walletHandle, comptenceOffer, competenceRequest, transcript_cred_values, null, 0);
 
     callBack(dimplomaCred, req, res);
 }
@@ -179,4 +179,10 @@ async function getSchema(poolHandle, did, schemaId) {
     let getSchemaRequest = await indy.buildGetSchemaRequest(did, schemaId);
     let getSchemaResponse = await indy.submitRequest(poolHandle, getSchemaRequest);
     return await indy.parseGetSchemaResponse(getSchemaResponse);
+}
+
+async function getCredDef(poolHandle, did, schemaId) {
+    let getCredDefRequest = await indy.buildGetCredDefRequest(did, schemaId);
+    let getCredDefResponse = await indy.submitRequest(poolHandle, getCredDefRequest);
+    return await indy.parseGetCredDefResponse(getCredDefResponse);
 }

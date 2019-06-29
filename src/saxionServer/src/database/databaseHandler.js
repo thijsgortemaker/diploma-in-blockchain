@@ -1,4 +1,4 @@
-var mysql      = require('mysql');
+var mysql = require('mysql');
 
 let connection;
 
@@ -40,7 +40,6 @@ DataBaseHandler.voegVakToe = function(naam, omschrijving, ecs, callBack, req, re
 
 DataBaseHandler.voegConnectieRequestToe = function(naam, studentnummer, did, verinym,callBack, req, res){
   connection.query(`INSERT INTO connectierequest (naam, studentnummer, did, verinym) VALUES (?, ?, ?, ?)`, [naam, studentnummer, did, verinym] , function (error, results, fields) {    
-
     callBack(req, res, error);
   }); 
 }
@@ -65,19 +64,31 @@ DataBaseHandler.getStudenten = function(callBack, req, res){
 
 DataBaseHandler.voegCompetentieToe = function(student, vak, cijfer, credOffer,callBack, req, res){
   connection.query(`INSERT INTO competentie (idStudent, idVak, cijfer, competentieOffer) VALUES (?, ?, ?, ?);`, [student, vak, cijfer, credOffer] , function (error, results, fields) {    
-    callBack(req, res,credOffer ,error);
+    if(error){
+      callBack(req, res,credOffer, null, null, null , error);
+    }
+    connection.query(`SELECT * FROM student where idStudent = ?`, student,function (error, resultsstudent, fields) {    
+      connection.query(`SELECT * FROM vak where idvak = ?`, vak ,function (error, resultsvak, fields) {    
+        connection.query(`SELECT * FROM competentie where idVak = ? AND idStudent = ?`, [vak, student],function (error, resultscomp, fields) {    
+          callBack(req, res,credOffer, resultsstudent[0], resultsvak[0], resultscomp[0], error);
+        });
+      }); 
+    }); 
   }); 
 }
 
 DataBaseHandler.haalCompetentieOp = function(competentieOfferNR, callBack, req, res){
-  connection.query(`SELECT * FROM competentie where idCompetentie = ?`, [ competentieOfferNR] , function (error, results, fields) {    
-    callBack(req, res, results ,error);
+  connection.query(`SELECT * FROM competentie where idCompetentie = ?`, [ competentieOfferNR] , function (error, compresults, fields) {    
+    connection.query(`SELECT * FROM student where idStudent = ?`, compresults[0].idStudent ,function (error, resultsstudent, fields) {    
+      connection.query(`SELECT * FROM vak where idvak = ?`, compresults[0].idVak ,function (error, resultsvak, fields) { 
+        callBack(req, res, compresults[0], resultsstudent[0], resultsvak[0],error);
+      });
+    });
   }); 
 }
 
 DataBaseHandler.voegDiplomaCredToe = function(competentieOfferNR, diplomaCred){
   connection.query(`UPDATE competentie SET competentie = ? WHERE (idCompetentie = ?)`, [ competentieOfferNR, diplomaCred] , function (error, results, fields) { 
-    console.log(error);
   }); 
 }
 

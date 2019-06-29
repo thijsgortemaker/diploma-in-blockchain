@@ -96,8 +96,8 @@ function navigationBar() {
           <li value="1" onclick={gotoPage}>Connectie requesten</li>
           <li value="2" onclick={gotoPage}>Vak aanmaken</li>
           <li value="3" onclick={gotoPage}>Geef competentie uit</li>
-          <li value="0" onclick={gotoPage}>Log out</li>
-      </ul>
+          <li value="4" onclick={gotoPage}>Log out</li>
+      </ul><br/>
   </div>
 }
 
@@ -133,6 +133,7 @@ function accepteerConnectionRequest(event, props){
 
 function vakAanmakenScherm(){
   return <div class="vak-aanmaken">
+    <h1 >Saxion</h1>
     {navigationBar()}
     <div id ="vakAanmaakError" hidden><span>Vervang dit met een error</span><br/></div>
     <span>Naam vak </span><input type="text" binding="$naamvak"/><br/>
@@ -146,12 +147,14 @@ function geefCompetentieUitScherm(props){
   let studenten = props.studenten;
   let vakken = props.vakken;
   
+  console.log("hallo");
+
   return <main>
+    <h1 >Saxion</h1>
     {navigationBar()}
     <div id ="competentieSchermError" hidden><span>Vervang dit met een error</span><br/></div>
     <span>student:</span>
     <select binding="$student">
-    <option>{studenten[0].naam}</option>
       {studenten.map(student =>  <option value= {student.idStudent}>{student.naamstudent}</option>)}
     </select><br/>
     <span>vak: </span>
@@ -160,7 +163,7 @@ function geefCompetentieUitScherm(props){
     </select><br/>
 
     <span>cijfer</span><input type="number" binding="$cijfer"/><br/>
-    <input type="submit" value="Maak vak aan" onclick = {geefCompetentieUit}/><br/>
+    <input type="submit" value="geef competentie uit" onclick = {geefCompetentieUit}/><br/>
   </main>
 }
 

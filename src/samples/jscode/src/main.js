@@ -102,9 +102,9 @@ async function connectMetFaber(){
     console.log(authdecryptedDidInfoJson.did);
     console.log(authdecryptedDidInfoJson.verkey);
 
-    let peniswtfisthishit =  await indy.keyForDid(poolHandle, stewardWalletGlobal.walletHandle, decryptedConnectionResponse.did);
+    let afdsfadsafd =  await indy.keyForDid(poolHandle, stewardWalletGlobal.walletHandle, decryptedConnectionResponse.did);
 
-    if(senderVerkey == peniswtfisthishit){
+    if(senderVerkey == afdsfadsafd){
         console.log("match");
     }
 
@@ -123,18 +123,18 @@ async function connectMetFaber(){
 
 
     let nymGet = await indy.buildGetNymRequest(stewardWalletGlobal.stewardDid, authdecryptedDidInfoJson.did);
-    let penis = await indy.signAndSubmitRequest(poolHandle, stewardWalletGlobal.walletHandle, stewardWalletGlobal.stewardDid, nymGet);
+    let aaaa = await indy.signAndSubmitRequest(poolHandle, stewardWalletGlobal.walletHandle, stewardWalletGlobal.stewardDid, nymGet);
     console.log(authdecryptedDidInfoJson.did);
-    console.log(penis);
+    console.log(aaaa);
 
 
     // let attrrequest = await indy.buildAttribRequest(authdecryptedDidInfoJson.did, authdecryptedDidInfoJson.did, null, {"port": "6969"}, null);
-    // penis = await indy.signAndSubmitRequest(poolHandle, faberWalletGlobal.walletHandle, authdecryptedDidInfoJson.did, attrrequest);
+    // aaaa = await indy.signAndSubmitRequest(poolHandle, faberWalletGlobal.walletHandle, authdecryptedDidInfoJson.did, attrrequest);
 
     // nymGet = await indy.buildGetAttribRequest(stewardWalletGlobal.stewardDid, authdecryptedDidInfoJson.did,null,"halloa123123ttr",null);
-    // penis = await indy.signAndSubmitRequest(poolHandle, stewardWalletGlobal.walletHandle, stewardWalletGlobal.stewardDid, nymGet);
+    // aaaa = await indy.signAndSubmitRequest(poolHandle, stewardWalletGlobal.walletHandle, stewardWalletGlobal.stewardDid, nymGet);
     console.log("aaaaaaaaaaaaaaaaaaa");
-    console.log(penis);
+    console.log(aaaa);
 }
 
 async function createStewardWallet(){
