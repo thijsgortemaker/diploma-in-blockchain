@@ -22,7 +22,7 @@ function closingCode(){
 function doLoginRequest(event, props){
     HTTPrequest('POST', '/api/wallet-log-in', {username: props.$username, password: props.$password}, function(body){
         if(body.err){
-            let errorElement = document.getElementById("inlogSchermError");
+            let errorElement = document.getElementById("error");
             errorElement.hidden = false;
             errorElement.firstChild.innerHTML = body.err;
         }else{
@@ -35,7 +35,7 @@ function doLoginRequest(event, props){
 function doRegisterRequest(event, props) {
     HTTPrequest('POST', '/api/wallet-register', {username: props.$username, password: props.$password}, function (body) {
         if (body.err) {
-            let errorElement = document.getElementById("inlogSchermError");
+            let errorElement = document.getElementById("error");
             errorElement.hidden = false;
             errorElement.firstChild.innerHTML = body.err;
         } else {
@@ -68,6 +68,9 @@ function getAllCredentials(event, props) {
 function doOffersRequest(event, props) {
     HTTPrequest('GET', '/api/get-all-offers', {}, function (body) {
         if (body.err) {
+            let errorElement = document.getElementById("error");
+            errorElement.hidden = false;
+            errorElement.firstChild.innerHTML = body.err;
         } else {
             mount = glasgow.mount(document.body, offersPage, body);
         }
@@ -121,6 +124,7 @@ function connRequestPage() {
             <input type="text" binding="$studentNummer" placeholder="studentnummer"/>
             <input class="btn" type="submit" value="Make request" onclick = {sendConnectieRequest}/>
             </div>
+            <div id ="error" hidden><span>Vervang dit met een error</span><br/></div>
         </div>
 }
 
@@ -136,6 +140,7 @@ function myCredentialsPage(props) {
 
     </div>
     </div>
+    <div id ="error" hidden><span>Vervang dit met een error</span><br/></div>
 
   </div>
 }
@@ -158,7 +163,7 @@ function ACredential(props) {
 function logInPage() {
     return <div class="log-in-prompt">
         <h2>Cloud Agent Log-in</h2>
-        <div id ="inlogSchermError" hidden>Vervang dit met een error</div>
+        <div id ="error" hidden><span>Vervang dit met een error</span><br/></div>
         <input placeholder="Username" type="text" binding="$username"/>
         <input placeholder="Password" type="password" binding="$password"/>
         <input class="btn" type="submit" value="Log in" onclick={doLoginRequest}/>
@@ -169,7 +174,7 @@ function logInPage() {
 function registerPage() {
     return <div class="log-in-prompt">
         <h2>Cloud Agent Register</h2>
-        <div id ="inlogSchermError" hidden>Vervang dit met een error</div>
+        <div id ="error" hidden><span>Vervang dit met een error</span><br/></div>
         <input placeholder="Username" type="text" binding="$username"/>
         <input placeholder="Password" type="password" binding="$password"/>
         <input class="btn" type="submit" value="Submit!" onclick={doRegisterRequest}/>
@@ -187,6 +192,8 @@ function offersPage(props) {
     {offers.map(offer => <IncomingOffer offer = {offer} />)}
 
     </div>
+    <div id ="error" hidden><span>Vervang dit met een error</span><br/></div>
+
     </div>
   </main>
 }

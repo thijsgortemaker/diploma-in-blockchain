@@ -70,14 +70,15 @@ router.post("/wallet-log-in", async function(req, rsp) {
             // Save the walletHandle in hashMap for later use
             userMap.map.get(walletName).walletHandle = walletHandle;
         } catch (e) {
+            
             // Caught and throwin the error.
             rsp.status(500).json({err:'An error with indy occured',
                         stack:e});
-            throw e;
         }
-        rsp.status(200).json({success:'logged in',
-                                token:token});
+    
     }
+    rsp.status(200).json({success:'logged in',
+    token:token});
 });
 
 
