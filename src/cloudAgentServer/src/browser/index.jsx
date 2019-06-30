@@ -206,7 +206,7 @@ function navigationBar() {
 /**
  * Element for a single offer.
  */
-function IncomingOffer() {
+function IncomingOffer(props) {
     let offer = props.offer;
     return <div id="incoming-offer">
     <div class="incoming-offer-info">

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack --mode development src/browser/index.jsx",
-    "start": "webpack --mode production src/browser/index.jsx && node index.js",
+    "start": "webpack --mode development src/browser/index.jsx && node index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch:frontEnd": "webpack --mode development --watch src/browser/index.jsx",
     "watch:backEnd": "nodemon --watch ."

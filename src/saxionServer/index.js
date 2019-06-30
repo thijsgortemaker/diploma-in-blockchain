@@ -51,7 +51,7 @@ run();
 
 async function run(){
     await ledgerHandler.init(PORT);
-    // databaseHandler.init();
+    databaseHandler.init();
     server = app.listen(PORT, function () {
         console.log('Listening on port: ' + PORT);
     });

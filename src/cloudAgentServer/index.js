@@ -8,10 +8,6 @@ const userMap = require('./src/userMap');
 const swaggerJSDoc = require('swagger-jsdoc');
 const swaggerUI = require('swagger-ui-express');
 
-<<<<<<< HEAD
-// Set port here
-=======
->>>>>>> 32679239193b3563257b10577c8da83a81ef9d4f
 const PORT = 3001;
 
 // Defining base information for this route
@@ -33,10 +29,6 @@ const options = {
 const swaggerSpec = swaggerJSDoc(options);
 
 
-<<<<<<< HEAD
-=======
-
->>>>>>> 32679239193b3563257b10577c8da83a81ef9d4f
 const app = express();
 
 app.use(bodyParser.urlencoded({extended:true}));
