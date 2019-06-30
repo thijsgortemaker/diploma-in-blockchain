@@ -207,13 +207,12 @@ function navigationBar() {
  * Element for a single offer.
  */
 function IncomingOffer() {
-    // let offer = props.offer;
-//{offer.vak}
+    let offer = props.offer;
     return <div id="incoming-offer">
     <div class="incoming-offer-info">
         <p><b>Offer</b></p>
         <p><b>From:</b> Saxion</p>
-        <p><b>Vak:</b> </p>
+        <p><b>Vak:</b> {offer.vak} </p>
     </div>
     <div id="buttons">
             <input type="submit" value="Accept" onclick={accepteerCredOffer}/>
