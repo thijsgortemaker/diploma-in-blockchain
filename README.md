@@ -6,7 +6,7 @@ Deze repo is voor het project diploma's in blockchain
 Er zijn twee mappen  
  + src is waar de code staat  
  + docs is waar wat documentatie staat    
-  - Installateie is een document waar in staat wat de dependencies zijn en hoe deze moeten worden geinstalleerd 
+     - Installateie is een document waar in staat wat de dependencies zijn en hoe deze moeten worden geinstalleerd 
  
  De src map heeft meerdere mappen  
   + saxionServer is de applicatie voor de Saxion kant van de communicatie   
