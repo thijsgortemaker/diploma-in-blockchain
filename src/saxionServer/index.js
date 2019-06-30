@@ -3,8 +3,40 @@ const bodyParser = require('body-parser');
 const databaseHandler = require('./src/database/databaseHandler');
 const ledgerHandler = require('./src/ledger/ledgerHandler');
 
-const PORT = 3000;
 const app = express();
+const PORT = 3000;
+
+// Imports for documentation
+const swaggerJSDoc = require('swagger-jsdoc');
+const swaggerUI = require('swagger-ui-express');
+
+// Defining base information for this route
+const swaggerDefinition = {
+    info: {
+        title: 'SaxionServer API Documentation',
+        version: '1.0.0',
+        description: 'API Description for the back-end of the SaxionServer'
+    },
+    host: 'localhost:' + PORT,
+    basePath: '/'
+}
+
+// Setting up options
+const options = {
+    swaggerDefinition,
+    apis: ['./routes/api/*.js'],
+}
+
+const swaggerSpec = swaggerJSDoc(options);
+
+app.get('/swagger.json', function(req, res) {
+    res.setHeader('Content-Type', 'application/json');
+    res.send(swaggerSpec);
+})
+
+// Base route for API documentation
+app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
+
 
 //global variabelen
 let server;
@@ -19,7 +51,7 @@ run();
 
 async function run(){
     await ledgerHandler.init(PORT);
-    databaseHandler.init();
+    // databaseHandler.init();
     server = app.listen(PORT, function () {
         console.log('Listening on port: ' + PORT);
     });

@@ -15,7 +15,7 @@ const swaggerDefinition = {
         version: '1.0.0',
         description: 'API Description for the back-end of the CloudAgentServer'
     },
-    host: 'localhost:3001',
+    host: 'localhost:' + PORT,
     basePath: '/'
 }
 

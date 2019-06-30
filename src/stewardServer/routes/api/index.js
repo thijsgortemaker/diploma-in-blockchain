@@ -6,6 +6,11 @@ router.get("/", function(req, rsp){
     rsp.end("Test is working. Connected with Steward server");
 })
 
+/**
+ * Call for making a user a trust anchor.
+ * - Checks if body contains requested paramters
+ * - If successfull, makes user a trust anchor.
+ */
 router.post("/makeMeATrustAnchor", async function(req, rsp){
     console.log(req.body);
 
