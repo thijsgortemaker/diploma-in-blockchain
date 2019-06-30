@@ -99,7 +99,7 @@ function gotoPage(event, props, node) {
     if (page == 0) {
         mount = glasgow.mount(document.body, logInPage);
     } else if (page == 1) {
-        getAllCredentials();
+        getAllCredentials()
     } else if (page == 2) {
         mount = glasgow.mount(document.body, connRequestPage);
     } else if (page == 3) {
@@ -111,60 +111,68 @@ function gotoPage(event, props, node) {
     }
 }
 
+
 function connRequestPage() {
-    return <main>
-    {navigationBar()}
-    <span>Doe connectie request naar saxion</span><br/>
-    <span>Enter naam:</span> <input type="text" binding="$naam"></input><br/>
-    <span>Enter studentnummer:</span> <input type="text" binding="$studentNummer"></input><br/> 
-    <input type="submit" value="stuur connectie request" onclick = {sendConnectieRequest}/><br/>
-  </main>
+    return <div id="conn-request">
+        {navigationBar()}
+        <div class="request-form">
+        <h3>Make a connection request</h3>
+            <input type="text" binding="$naam" placeholder="name"/>
+            <input type="text" binding="$studentNummer" placeholder="studentnummer"/>
+            <input class="btn" type="submit" value="Make request" onclick = {sendConnectieRequest}/>
+            </div>
+        </div>
 }
 
 function myCredentialsPage(props) {
     let creds = props.success;
 
-    return <main>
+    return <div>
     {navigationBar()}
+    <div id="credential-page-wrap">  
+          <h2>My Credentials</h2>
     <div id="credentials-list">
-        {creds.map(cred => <ACredential cred = {cred} />)}
+    {creds.map(cred => <ACredential cred = {cred} />)}
+
     </div>
-    
-  </main>
+    </div>
+
+  </div>
 }
 
 /**
  * Element for a single credential.
+ * ** VERGEET PROPS NIET TE ADDEN **
  */
 function ACredential(props) {
-    console.log(props);
-
     return <div class="credential">
         <h4>Credential</h4>
-        <p>Issued By: Saxion</p>
-        <p>Extra info: {JSON.stringify(props.cred)}</p>
+        <p><b>Issued By:</b> Saxion</p>
+        <p><b>Extra info:</b>  
+          {JSON.stringify(props.cred)}
+        </p>
     </div>
 }
 
 
 function logInPage() {
     return <div class="log-in-prompt">
-        <h1>Cloud Agent Log-in</h1>
-        <div id ="inlogSchermError" hidden><span>Vervang dit met een error</span><br/></div>
-        <input placeholder="Username" type="text" binding="$username"/><br/>
-        <input placeholder="Password" type="password" binding="$password"/><br/>
-        <p value="5" onclick={gotoPage}>Register</p>
-        <input type="submit" value="Log in" onclick={doLoginRequest}/>
+        <h2>Cloud Agent Log-in</h2>
+        <div id ="inlogSchermError" hidden>Vervang dit met een error</div>
+        <input placeholder="Username" type="text" binding="$username"/>
+        <input placeholder="Password" type="password" binding="$password"/>
+        <input class="btn" type="submit" value="Log in" onclick={doLoginRequest}/>
+        <p>Don't have an account yet ?</p><a href="#" value="5" onclick={gotoPage}>Register</a>
     </div>
 }
 
 function registerPage() {
     return <div class="log-in-prompt">
-        <h1>Cloud Agent Register</h1>
-        <div id ="inlogSchermError" hidden><span>Vervang dit met een error</span><br/></div>
-        <input placeholder="Username" type="text" binding="$username"/><br/>
-        <input placeholder="Password" type="password" binding="$password"/><br/>
-        <input type="submit" value="Submit!" onclick={doRegisterRequest}/>
+        <h2>Cloud Agent Register</h2>
+        <div id ="inlogSchermError" hidden>Vervang dit met een error</div>
+        <input placeholder="Username" type="text" binding="$username"/>
+        <input placeholder="Password" type="password" binding="$password"/>
+        <input class="btn" type="submit" value="Submit!" onclick={doRegisterRequest}/>
     </div> 
 }
 
@@ -173,8 +181,13 @@ function offersPage(props) {
 
     return <main>
     {navigationBar()}
-    <h3>Incoming offers: </h3>
+    <div id="wrap-cuck">
+    <h2>Incoming offers: </h2>
+    <div id="incoming-offers-list">
     {offers.map(offer => <IncomingOffer offer = {offer} />)}
+
+    </div>
+    </div>
   </main>
 }
 
@@ -193,16 +206,18 @@ function navigationBar() {
 /**
  * Element for a single offer.
  */
-function IncomingOffer(props) {
-    let offer = props.offer;
-
-    return <div class="incoming-offer">
-        <p>Offer</p>
-        <p>From: Saxion</p>
-        <p>Vak: {offer.vak}</p>
-        <div id="buttons">
-            <input type="submit" value="accepteer" onclick={accepteerCredOffer}/>
-            <button id="decline-offer">Decline</button>
+function IncomingOffer() {
+    // let offer = props.offer;
+//{offer.vak}
+    return <div id="incoming-offer">
+    <div class="incoming-offer-info">
+        <p><b>Offer</b></p>
+        <p><b>From:</b> Saxion</p>
+        <p><b>Vak:</b> </p>
+    </div>
+    <div id="buttons">
+            <input type="submit" value="Accept" onclick={accepteerCredOffer}/>
+            <input type="submit" value="Decline" id="decline-offer"/>
         </div>
     </div>
 }

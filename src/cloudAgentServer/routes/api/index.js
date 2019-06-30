@@ -318,7 +318,9 @@ router.get('/credentials', async function(req, rsp) {
         // Getting all the users credentials through the ledgerHandler.
         data = await ledgerHandler.getAllCredentials(userMap.map.get(userName).walletHandle);
     } catch(e) {
-        rsp.status(500).json({err:'Something went wrong with Indy'})
+        rsp.status(500).json({err:'Something went wrong with Indy',
+                                stack:e})
+        throw e;
     }
 
     rsp.status(200).json({success: data});

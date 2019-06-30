@@ -1,3 +1,8 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: rgb(190, 188, 188);
+}
+
 /** START CSS FOR NAV **/
 #logo-ting {
     font: x-large;
@@ -26,35 +31,120 @@ li:hover {
 }
 
 /** START CSS FOR OFFER **/
-.incoming-offer {
-    width: 200px;
-    border: 3px solid black;
-    border-radius: 6px;
-    margin: 5px;
+
+
+#wrap-cuck {
+  text-align:center;
+
 }
 
-.incoming-offer #buttons {
-    padding-left: 50px;
+#incoming-offer {
+  width: 300px;
+  padding: 20px;
 }
+
+.incoming-offer-info {
+  text-align: center;
+  background-color: lightseagreen;
+  width: 100%;
+  border: 2px solid black;
+  border-radius: 2px;
+}
+
+#incoming-offer input {
+  display: block;
+  width: 100%;
+  padding: 20px;
+  -webkit-appearance: none;
+  outline: 0;
+  border: 0;
+  color: white;
+  background: grey;
+  transition: 0.3s;
+}
+
+#incoming-offers-list {
+  display: flex;
+  flex-wrap: wrap;
+  padding-top: 50px;
+  justify-content: center;
+}
+
+
 
 /** START CSS FOR CREDENTIAL **/
 .credential {
-    width: 200px;
+    padding-left: 15px;
+    background-color: lightseagreen;
+    width: 300px;
     border: 3px solid black;
     border-radius: 6px;
     margin: 5px;
+}
+
+#credentials-list {
+  display: flex;
+  flex-wrap: wrap;
+  padding-top: 50px;
+  justify-content: center;
+}
+
+#credential-page-wrap {
+  text-align: center;
 }
 
 /** START CSS FOR LOG-IN **/
 .log-in-prompt {
+    text-align: center;
     position: fixed;
     top: 25%;
     left: 50%;
     transform: translate(-50%, -50%);
+    margin-top: 40px;
+    border-radius: 6px;
+    overflow: hidden;
 }
 
 .log-in-prompt input {
-    width: 250px;
+  display: block;
+  width: 100%;
+  padding: 20px;
+  -webkit-appearance: none;
+  border: 0;
+  outline: 0;
+}
+
+.btn {
+  display: block;
+  width: 100%;
+  padding: 20px;
+  -webkit-appearance: none;
+  outline: 0;
+  border: 0;
+  color: white;
+  background: grey;
+  transition: 0.3s;
+}
+
+/** START CSS MAKING REQUEST **/
+.request-form {
+  text-align: center;
+  position: fixed;
+  top: 25%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  margin-top: 75px;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.request-form input {
+  display: block;
+  width: 100%;
+  padding: 20px;
+  -webkit-appearance: none;
+  border: 0;
+  outline: 0;
 }
 
 
