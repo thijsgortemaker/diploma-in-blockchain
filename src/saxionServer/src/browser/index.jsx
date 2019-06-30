@@ -136,9 +136,9 @@ function vakAanmakenScherm(){
     <h1 >Saxion</h1>
     {navigationBar()}
     <div id ="vakAanmaakError" hidden><span>Vervang dit met een error</span><br/></div>
-    <span>Naam vak </span><input type="text" binding="$naamvak"/><br/>
-    <span>Omschrijving vak </span><input type="text" binding="$omschrijving"/><br/>
-    <span>ecs </span><input type="text" binding="$ecs"/><br/>
+    <span>Naam vak: &emsp;&emsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><input type="text" binding="$naamvak"/><br/>
+    <span>Omschrijving vak:&nbsp;</span><input type="text" binding="$omschrijving"/><br/>
+    <span>ecs &emsp;&emsp;&emsp;&emsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><input type="text" binding="$ecs"/><br/>
     <input type="submit" value="Maak vak aan" onclick = {doeVakAanmaakRequest}/>
   </div>
 }
@@ -153,16 +153,16 @@ function geefCompetentieUitScherm(props){
     <h1 >Saxion</h1>
     {navigationBar()}
     <div id ="competentieSchermError" hidden><span>Vervang dit met een error</span><br/></div>
-    <span>student:</span>
+    <span>student: &nbsp;</span>
     <select binding="$student">
       {studenten.map(student =>  <option value= {student.idStudent}>{student.naamstudent}</option>)}
     </select><br/>
-    <span>vak: </span>
+    <span>vak: &emsp;&nbsp;&nbsp;&nbsp;</span>
     <select binding="$vak">
       {vakken.map(vak =>  <option value = {vak.idvak}>{vak.vaknaam}</option>)}
     </select><br/>
 
-    <span>cijfer</span><input type="number" binding="$cijfer"/><br/>
+    <span>cijfer: &nbsp;&nbsp;&nbsp;&nbsp;</span><input type="number" binding="$cijfer"/><br/>
     <input type="submit" value="geef competentie uit" onclick = {geefCompetentieUit}/><br/>
   </main>
 }
